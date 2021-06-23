@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-vimport ('~/libraries/Smarty/libs/SmartyBC.class.php');
+vimport ('~/vendor/smarty/smarty/libs/SmartyBC.class.php');
 
 class Vtiger_Viewer extends SmartyBC {
 
