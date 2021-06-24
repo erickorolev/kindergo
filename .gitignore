@@ -20,3 +20,4 @@ parent_tabdata.php
 /user_privileges
 /vendor
 test/vtlib/*
+log4php.properties
