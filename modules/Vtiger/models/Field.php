@@ -252,6 +252,30 @@ class Vtiger_Field_Model extends Vtiger_Field {
 		return false;
 	}
 
+	public function getModulesList(){
+
+        global $adb;
+
+        // vtlib customization: Ignore disabled and Tools modules
+
+        $query = 'select distinct vtiger_tab.tablabel, vtiger_tab.name as tabname from vtiger_tab where (vtiger_tab.presence != 1 and vtiger_tab.parent != "Tools" and vtiger_tab.parent != "")';
+
+ 
+
+        // END
+
+        $result = $adb->pquery($query, array());
+
+        while($row = $adb->fetch_array($result)){
+
+            $modules[$row['tablabel']] = $row['tabname'];
+
+        }
+
+        return $modules;
+
+    }
+
 	/**
 	 * Function to get all the available picklist values for the current field
 	 * @return <Array> List of picklist values if the field is of type picklist or multipicklist, null otherwise.
@@ -273,6 +297,14 @@ class Vtiger_Field_Model extends Vtiger_Field {
         if($fieldDataType == 'picklist' || $fieldDataType == 'multipicklist' || $fieldDataType == 'metricpicklist' || $fieldDataType == 'timestring') {
             $fieldPickListValues = array();
             $picklistValues = Vtiger_Util_Helper::getPickListValues($fieldName);
+
+            $fieldName = $this->getName();
+
+            if ($fieldName === 'user_default_module'){
+
+            $picklistValues = $this->getModulesList();
+
+            }
             
             foreach($picklistValues as $value) {
                 $fieldPickListValues[$value] = vtranslate($value,$this->getModuleName());
@@ -309,6 +341,8 @@ class Vtiger_Field_Model extends Vtiger_Field {
             }else{
                 $picklistValues = Vtiger_Util_Helper::getPickListValues($fieldName);
             }
+
+
             
             foreach($picklistValues as $value) {
                     $fieldPickListValues[$value] = vtranslate($value,$this->getModuleName());
