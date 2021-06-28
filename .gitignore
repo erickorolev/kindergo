@@ -21,3 +21,4 @@ parent_tabdata.php
 /vendor
 test/vtlib/*
 log4php.properties
+composer.lock
