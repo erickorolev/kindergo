@@ -74,6 +74,23 @@
 						</div>
 					</div>
 					{if !$IS_FIELD_EDIT_MODE}
+					<div class="form-group">
+
+                            <label class="control-label fieldLabel col-sm-5">
+
+                                {vtranslate('Field Name', $QUALIFIED_MODULE)}
+
+                                &nbsp;<span class="redColor">*</span>
+
+                            </label>
+
+                            <div class="controls col-sm-7">
+
+                                <input type="text" class='inputElement col-sm-9' maxlength="50" {if $IS_FIELD_EDIT_MODE}disabled="disabled"{/if} name="fieldName" value="{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}" data-rule-alphanumeric='true' style='width: 75%' />
+
+                            </div>
+
+                        </div>
 						<div class="form-group supportedType lengthsupported">
 							<label class="control-label fieldLabel col-sm-5">
 								{vtranslate('LBL_LENGTH', $QUALIFIED_MODULE)}

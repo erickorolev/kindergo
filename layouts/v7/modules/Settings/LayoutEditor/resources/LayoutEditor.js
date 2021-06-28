@@ -857,6 +857,7 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
                         
 			var maxlengthValue = selectedOption.data('maxlength');
 			form.find('[name="fieldLabel"]').attr('data-rule-illegal', "true");
+			form.find('[name="fieldName"]').attr('data-rule-alphanumeric', "true");
 
 			if (typeof maxlengthValue === 'undefined')
 				maxlengthValue = "255";
