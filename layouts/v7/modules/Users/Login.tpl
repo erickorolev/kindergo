@@ -227,17 +227,6 @@
 			}
 		}
 	</style>
-        {* SalesPlatform begin*}
-        <div class="linksNavBar">
-            <div class="helpLinks">
-                <a href="http://community.salesplatform.ru/">{vtranslate('LBL_COMMUNITY', $MODULE)}</a> |
-                <a href="http://community.salesplatform.ru/forums/">{vtranslate('LBL_FORUMS', $MODULE)}</a> |
-                <a href="http://salesplatform.ru/wiki/index.php/SalesPlatform_vtiger_crm_7">{vtranslate('LBL_WIKI', $MODULE)}</a> |
-                <a href="http://community.salesplatform.ru/blogs/">{vtranslate('LBL_BLOGS', $MODULE)}</a> |
-                <a href="http://salesplatform.ru/">SalesPlatform.ru</a>
-            </div>
-        </div>
-        {* SalesPlatform end*}
         <span class="app-nav"></span>
 
 	<div class="col-lg-12">

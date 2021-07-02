@@ -142,9 +142,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($CALENDAR_MODULE_MODEL->getId())}
 							<li><div><a href="#" class="taskManagement vicon vicon-task" title="{vtranslate('Tasks','Vtiger')}" aria-hidden="true"></a></div></li>
 						{/if} 
-                                                {* SalesPlatform.ru begin *}
-                                                <li><div><a href="http://salesplatform.ru/wiki/index.php/SalesPlatform_vtiger_crm_7" class="fa fa-info"  title="{vtranslate('LBL_MANUAL')}" aria-hidden="true" target="_blank"></a> </div></li> 
-                                                {* SalesPlatform.ru end *}
+                                                
 						<li class="dropdown">
 							<div style="margin-top: 15px;">
 								<a href="#" class="userName dropdown-toggle" data-toggle="dropdown" role="button">
