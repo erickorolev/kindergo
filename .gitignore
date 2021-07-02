@@ -22,3 +22,4 @@ parent_tabdata.php
 test/vtlib/*
 log4php.properties
 composer.lock
+info11.php
