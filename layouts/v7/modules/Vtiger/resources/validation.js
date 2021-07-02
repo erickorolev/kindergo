@@ -19,24 +19,6 @@ jQuery.validator.addMethod("date", function(value, element, params) {
 	}, jQuery.validator.format("Please enter the correct date")
 );
 
-jQuery.validator.addMethod("alphanumeric", function(value, element, params) {
-
-if(value){
-
-var regex = /^[a-z0-9_]+$/g;
-
-	if(!value.match(regex)){
-
-		return false;
-
-	}
-
-}
-
-return true;
-
-}, jQuery.validator.format("Small Letters, numbers, and underscores only please"));
-
 jQuery.validator.addMethod("datetime", function(value, element, params) {
 		try {
 			return true;

@@ -149,24 +149,9 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
 			throw new Exception(vtranslate('LBL_WRONG_FIELD_TYPE', 'Settings::LayoutEditor'), 513);
 		}
 
-		if(!empty($params['fieldName'])){
-
-		    $columnName = 'cf_'.$params['fieldName'];
-
-		}
-
-		else
-
-		{
-
 		$max_fieldid = $db->getUniqueID("vtiger_field");
-
 		$columnName = 'cf_'.$max_fieldid;
-
 		$custfld_fieldid = $max_fieldid;
-
-		}
-		
 		$moduleName = $this->getName();
 
 		$focus = CRMEntity::getInstance($moduleName);
