@@ -8,12 +8,12 @@
  * All Rights Reserved.
  ************************************************************************************/
 $languageStrings = array(
-	'Leads'                        => 'Обращения'          , 
-	'SINGLE_Leads'                 => 'Обращение'          , 
-	'LBL_RECORDS_LIST'             => 'Список Обращений'                  , // TODO: Review
-	'LBL_ADD_RECORD'               => 'Добавить Обращение'                    , // TODO: Review
-	'LBL_LEAD_INFORMATION'         => 'Информация об Обращении', 
-	'Lead No'                      => 'Обращение №'      , 
+	'Leads'                        => 'Лиды'          , 
+	'SINGLE_Leads'                 => 'Лид'          , 
+	'LBL_RECORDS_LIST'             => 'Список Лидов'                  , // TODO: Review
+	'LBL_ADD_RECORD'               => 'Добавить Лид'                    , // TODO: Review
+	'LBL_LEAD_INFORMATION'         => 'Информация О Лиде', 
+	'Lead No'                      => 'Лид №'      , 
 	'Company'                      => 'Организация'      , 
 	'Designation'                  => 'Должность'          , 
 	'Website'                      => 'Веб-сайт'             , 
@@ -31,9 +31,9 @@ $languageStrings = array(
 	'Contact in Future'            => 'Контакт в будущем', 
 	'Contacted'                    => 'Есть Контакт'     , 
 	'Hot'                          => 'Горячий'              ,
-    'Hot Leads'                    => 'Горячие Обращения',
-	'Junk Lead'                    => 'Ненужное Обращение', 
-	'Lost Lead'                    => 'Утерянное Обращение', 
+    'Hot Leads'                    => 'Горячие Лиды',
+	'Junk Lead'                    => 'Ненужное Лид', 
+	'Lost Lead'                    => 'Утерянное Лид', 
 	'Not Contacted'                => 'Не связывался'   , 
 	'Pre Qualified'                => 'Предв. классифицирован', 
 	'Qualified'                    => 'Классифицирован', 
@@ -51,10 +51,10 @@ $languageStrings = array(
     'LBL_SETUP_WEBFORMS'           => 'Установка Веб-Форм'              , // TODO: Review
     'Prospecting'                  => 'Разведка',
     'LBL_IMAGE_INFORMATION' => 'Изображение профиля',
-    'Lead Image' => 'Изображение Обращения',
-    'Phone' => 'Основной телефон',
+    'Lead Image' => 'Изображение Лида',
+    'Phone' => 'Телефон',
     'Secondary Email' => 'Второй адрес электронной почты',
-    'Email' => 'Основной адрес электронной почты',    
+    'Email' => 'Email',    
 );
 $jsLanguageStrings = array(
 	'JS_SELECT_CONTACTS'           => 'Выберите контакты для продолжения'  , // TODO: Review
