@@ -19,7 +19,22 @@ $languageStrings = array (
   'Modified By' => 'Изменено пользователем',
   'LBL_DESCRIPTION' => 'Описание',
   'LBL_ADD_RECORD' => 'Добавить Расписание',
-  'Name' => 'Тема'
+  'Name' => 'Откуда',
+  'LBL_WHERE' => 'Куда',
+  'LBL_TRIPS' => 'Количество поездок',   
+  'LBL_CHILDRENS' => 'Количество детей',   
+  'LBL_DATE' => 'Даты отправления',
+  'LBL_TIME' => 'Время отправления',
+  'LBL_DURATION' => 'Длительность (мин)',
+  'LBL_DISTANCE' => ' Дистанция (км)',
+  'LBL_SCHEDULED_WAIT' => 'Запланированное ожидание (мин)',
+  'LBL_FROM_COORDINATES' => 'Откуда (координаты)',
+  'LBL_WHERE_COORDINATES' => 'Куда (координаты)',
+  'Not paid' => 'Не оплачено',
+  'Paid' => 'Оплачено',
+  'Executed' => 'Исполнено',
+  '' => '',
+
 );
 
 $jsLanguageStrings = array (

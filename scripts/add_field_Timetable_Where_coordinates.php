@@ -17,23 +17,22 @@ require_once('vtlib/Vtiger/Menu.php');
 require_once('vtlib/Vtiger/Module.php');
 require_once('vtlib/Vtiger/Block.php');
 require_once('vtlib/Vtiger/Field.php');
-$module = Vtiger_Module::getInstance('Leads'); // Имя модуля из таблицы vtiger_tab
+$module = Vtiger_Module::getInstance('Timetable'); // Имя модуля из таблицы vtiger_tab
 if ($module) {
-    $block = Vtiger_Block::getInstance('Информация о расписании', $module); // Название блока из таблицы vtiger_blocks
+    $block = Vtiger_Block::getInstance('LBL_TIMETABLE_INFORMATION', $module); // Название блока из таблицы vtiger_blocks
     if ($block) {
-        $field = Vtiger_Field::getInstance('childrens', $module); // Название поля без пробелов через нижнее подчеркивание
+        $field = Vtiger_Field::getInstance('where_coordinates', $module); // Название поля без пробелов через нижнее подчеркивание
         if (!$field) {
             $field               = new Vtiger_Field();
-            $field->name         = 'childrens';  // Название поля без пробелов через нижнее подчеркивание
+            $field->name         = 'where_coordinates';  // Название поля без пробелов через нижнее подчеркивание
             $field->table        = $module->basetable;
-            $field->label        = 'LBL_CHILDRENS_ADDRESS';  // Лейбл на английском. Переводить на русский через файлы-переводов.
-            $field->column       = 'childrens';  // Название поля без пробелов через нижнее подчеркивание
-            $field->columntype   = 'INT';  // Посмотреть тип у похожих полей в таблице vtiger_навание-модуля
+            $field->label        = 'LBL_WHERE_COORDINATES';  // Лейбл на английском. Переводить на русский через файлы-переводов.
+            $field->column       = 'where_coordinates';  // Название поля без пробелов через нижнее подчеркивание
+            $field->columntype   = 'VARCHAR(255)';  // Посмотреть тип у похожих полей в таблице vtiger_навание-модуля
             
             // Посмотреть тип у похожих полей в таблице vtiger_field 
             // 1 - текстовое поле
-            // 1 - числовое поле
-            // 15 - поле-список
+            // 15 - поле-список)
             $field->uitype = 1;  
 
             $field->displaytype = 1;  // Посмотреть тип у похожих полей в таблице vtiger_field
@@ -41,15 +40,9 @@ if ($module) {
             // Посмотреть тип у похожих полей в таблице vtiger_field
             // V~O~LE~100 - текстовое поле
             // V~O - поле список
-            // I~O - числовое поле
-            $field->typeofdata = 'I~O';  
+            $field->typeofdata = 'V~O~LE~100';  
 
-            // Посмотреть тип у похожих полей в таблице vtiger_field
-            // 2 - видно
-            // 0 - 
-            // 1 - скрыто
-            $field->presence = 2; 
-            
+            $field->presence = 2; // Посмотреть тип у похожих полей в таблице vtiger_field
             $field->quickcreate = 1; // Посмотреть тип у похожих полей в таблице vtiger_field
             $field->generatedtype = 2; // Посмотреть тип у похожих полей в таблице vtiger_field
             $block->addField($field);

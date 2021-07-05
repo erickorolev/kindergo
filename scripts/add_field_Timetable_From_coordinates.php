@@ -17,17 +17,17 @@ require_once('vtlib/Vtiger/Menu.php');
 require_once('vtlib/Vtiger/Module.php');
 require_once('vtlib/Vtiger/Block.php');
 require_once('vtlib/Vtiger/Field.php');
-$module = Vtiger_Module::getInstance('Leads'); // Имя модуля из таблицы vtiger_tab
+$module = Vtiger_Module::getInstance('Timetable'); // Имя модуля из таблицы vtiger_tab
 if ($module) {
-    $block = Vtiger_Block::getInstance('Информация о расписании', $module); // Название блока из таблицы vtiger_blocks
+    $block = Vtiger_Block::getInstance('LBL_TIMETABLE_INFORMATION', $module); // Название блока из таблицы vtiger_blocks
     if ($block) {
-        $field = Vtiger_Field::getInstance('where', $module); // Название поля без пробелов через нижнее подчеркивание
+        $field = Vtiger_Field::getInstance('from_coordinates', $module); // Название поля без пробелов через нижнее подчеркивание
         if (!$field) {
             $field               = new Vtiger_Field();
-            $field->name         = 'where';  // Название поля без пробелов через нижнее подчеркивание
+            $field->name         = 'from_coordinates';  // Название поля без пробелов через нижнее подчеркивание
             $field->table        = $module->basetable;
-            $field->label        = 'LBL_WHERE';  // Лейбл на английском. Переводить на русский через файлы-переводов.
-            $field->column       = 'where';  // Название поля без пробелов через нижнее подчеркивание
+            $field->label        = 'LBL_FROM_COORDINATES';  // Лейбл на английском. Переводить на русский через файлы-переводов.
+            $field->column       = 'from_coordinates';  // Название поля без пробелов через нижнее подчеркивание
             $field->columntype   = 'VARCHAR(255)';  // Посмотреть тип у похожих полей в таблице vtiger_навание-модуля
             
             // Посмотреть тип у похожих полей в таблице vtiger_field 

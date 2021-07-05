@@ -26,7 +26,7 @@ if ($module) {
             $field               = new Vtiger_Field();
             $field->name         = 'trips';  // Название поля без пробелов через нижнее подчеркивание
             $field->table        = $module->basetable;
-            $field->label        = 'LBL_TRIPS_ADDRESS';  // Лейбл на английском. Переводить на русский через файлы-переводов.
+            $field->label        = 'LBL_TRIPS';  // Лейбл на английском. Переводить на русский через файлы-переводов.
             $field->column       = 'trips';  // Название поля без пробелов через нижнее подчеркивание
             $field->columntype   = 'INT';  // Посмотреть тип у похожих полей в таблице vtiger_навание-модуля
             

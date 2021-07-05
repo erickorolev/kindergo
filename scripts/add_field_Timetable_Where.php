@@ -17,9 +17,9 @@ require_once('vtlib/Vtiger/Menu.php');
 require_once('vtlib/Vtiger/Module.php');
 require_once('vtlib/Vtiger/Block.php');
 require_once('vtlib/Vtiger/Field.php');
-$module = Vtiger_Module::getInstance('Leads'); // Имя модуля из таблицы vtiger_tab
+$module = Vtiger_Module::getInstance('Timetable'); // Имя модуля из таблицы vtiger_tab
 if ($module) {
-    $block = Vtiger_Block::getInstance('Информация о расписании', $module); // Название блока из таблицы vtiger_blocks
+    $block = Vtiger_Block::getInstance('LBL_TIMETABLE_INFORMATION', $module); // Название блока из таблицы vtiger_blocks
     if ($block) {
         $field = Vtiger_Field::getInstance('where', $module); // Название поля без пробелов через нижнее подчеркивание
         if (!$field) {

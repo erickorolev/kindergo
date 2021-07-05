@@ -55,10 +55,10 @@ $languageStrings = array(
     'Phone' => 'Телефон',
     'Secondary Email' => 'Второй адрес электронной почты',
     'Email' => 'Email',    
-    'LBL_FROM_ADDRESS' => 'Откуда',   
-    'LBL_WHERE_ADDRESS' => 'Куда',
-    'LBL_TRIPS_ADDRESS' => 'Количество поездок',   
-    'LBL_CHILDRENS_ADDRESS' => 'Количество детей',   
+    'LBL_FROM' => 'Откуда',   
+    'LBL_WHERE' => 'Куда',
+    'LBL_TRIPS' => 'Количество поездок',   
+    'LBL_CHILDRENS' => 'Количество детей',   
 );
 $jsLanguageStrings = array(
 	'JS_SELECT_CONTACTS'           => 'Выберите контакты для продолжения'  , // TODO: Review
