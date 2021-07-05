@@ -9,16 +9,16 @@
  ************************************************************************************/
 
 $languageStrings = array (
-  'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-  'Trips' => 'Trips',
-  'SINGLE_Trips' => 'TRIP',
-  'Trips ID' => 'TRIP ID',
-  'LBL_TRIPS_INFORMATION' => 'TRIP Information',
-  'Created Time' => 'Created At',
-  'Modified Time' => 'Modified At',
-  'Modified By' => 'Modified By',
-  'LBL_DESCRIPTION' => 'Description',
-  'LBL_ADD_RECORD' => 'Add TRIP',
+  'LBL_CUSTOM_INFORMATION' => 'Дополнительная информация',
+  'Trips' => 'Поездки',
+  'SINGLE_Trips' => 'Поездка',
+  'Trips ID' => 'ID Поездки',
+  'LBL_TRIPS_INFORMATION' => 'Информация о Поездках',
+  'Created Time' => 'Дата создания',
+  'Modified Time' => 'Дата изменения',
+  'Modified By' => 'Изменено пользователем',
+  'LBL_DESCRIPTION' => 'Описание',
+  'LBL_ADD_RECORD' => 'Добавить Поездку',
 );
 
 $jsLanguageStrings = array (
