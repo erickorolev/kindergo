@@ -19,6 +19,16 @@ $languageStrings = array (
   'Modified By' => 'Изменено пользователем',
   'LBL_DESCRIPTION' => 'Описание',
   'LBL_ADD_RECORD' => 'Добавить Поездку',
+  'Name' => 'Откуда',
+  'LBL_WHERE' => 'Куда',
+  'LBL_CHILDRENS' => 'Количество детей',   
+  'LBL_DATE' => 'Дата отправления',
+  'LBL_TIME' => 'Время отправления',
+  'LBL_DURATION' => 'Длительность (мин)',
+  'LBL_DISTANCE' => ' Дистанция (км)',
+  'LBL_SCHEDULED_WAIT' => 'Запланированное ожидание (мин)',
+  'LBL_NOT_SCHEDULED_WAIT' => 'Незапланированное ожидание (мин)',
+  'LBL_STATUS' => 'Статус',
 );
 
 $jsLanguageStrings = array (
