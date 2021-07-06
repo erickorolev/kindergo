@@ -68,6 +68,10 @@ $languageStrings = array(
     'LBL_ATTENDANT_CATEGORY' => 'Категория',
     'LBL_VEHICLE_DATA' => 'Данные об автомобиле',
     'LBL_ATTENDANT_HIRED' => 'Принят на работу',
+    'LBL_METRO_STATION ' => 'Станция метро',
+    'LBL_RESUME' => 'Анкета',
+    'LBL_ATTENDANT_STATUS' => 'Статус',
+    'LBL_PAYMENT_DATA' => 'Платежные данные',
     '' => '',
     '' => '',
 );
