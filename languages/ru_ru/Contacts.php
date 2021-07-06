@@ -72,8 +72,9 @@ $languageStrings = array(
     'LBL_RESUME' => 'Анкета',
     'LBL_ATTENDANT_STATUS' => 'Статус',
     'LBL_PAYMENT_DATA' => 'Платежные данные',
-    '' => '',
-    '' => '',
+    'Active' => 'Активный',
+    'Inactive' => 'Неактивный',
+    'Standby' => 'В резерве',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
