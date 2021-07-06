@@ -21,13 +21,13 @@ $module = Vtiger_Module::getInstance('Contacts'); // Имя модуля из т
 if ($module) {
     $block = Vtiger_Block::getInstance('LBL_CONTACT_INFORMATION', $module); // Название блока из таблицы vtiger_blocks
     if ($block) {
-        $field = Vtiger_Field::getInstance('attendant_category', $module); // Название поля без пробелов через нижнее подчеркивание
+        $field = Vtiger_Field::getInstance('attendant_status', $module); // Название поля без пробелов через нижнее подчеркивание
         if (!$field) {
             $field               = new Vtiger_Field();
-            $field->name         = 'attendant_category';  // Название поля без пробелов через нижнее подчеркивание
+            $field->name         = 'attendant_status';  // Название поля без пробелов через нижнее подчеркивание
             $field->table        = $module->basetable;
-            $field->label        = 'LBL_ATTENDANT_CATEGORY';  // Лейбл на английском. Переводить на русский через файлы-переводов.
-            $field->column       = 'attendant_category';  // Название поля без пробелов через нижнее подчеркивание
+            $field->label        = 'LBL_ATTENDANT_STATUS';  // Лейбл на английском. Переводить на русский через файлы-переводов.
+            $field->column       = 'attendant_status';  // Название поля без пробелов через нижнее подчеркивание
             $field->columntype   = 'VARCHAR(255)';  // Посмотреть тип у похожих полей в таблице vtiger_навание-модуля
             
             // Посмотреть тип у похожих полей в таблице vtiger_field 
