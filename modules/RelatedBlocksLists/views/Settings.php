@@ -8,7 +8,7 @@ class RelatedBlocksLists_Settings_View extends Settings_Vtiger_Index_View
     }
     public function preProcess(Vtiger_Request $request)
     {
-        $this::preProcess($request);
+        parent::preProcess($request);
         $adb = PearDatabase::getInstance();
         $module = $request->getModule();
         $viewer = $this->getViewer($request);
@@ -52,7 +52,7 @@ class RelatedBlocksLists_Settings_View extends Settings_Vtiger_Index_View
     }
     public function getHeaderScripts(Vtiger_Request $request)
     {
-        $headerScriptInstances = $this::getHeaderScripts($request);
+        $headerScriptInstances = parent::getHeaderScripts($request);
         $moduleName = $request->getModule();
         $jsFileNames = ["modules." . $moduleName . ".resources.Settings"];
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

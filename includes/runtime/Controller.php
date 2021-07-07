@@ -183,6 +183,7 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 	function preProcess(Vtiger_Request $request, $display=true) {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
+
 		$viewer->assign('PAGETITLE', $this->getPageTitle($request));
 		$viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
 		$viewer->assign('STYLES',$this->getHeaderCss($request));
