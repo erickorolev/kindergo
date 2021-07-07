@@ -23,3 +23,4 @@ test/vtlib/*
 log4php.properties
 composer.lock
 info11.php
+log4php.properties
