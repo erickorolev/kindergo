@@ -20,7 +20,7 @@ $languageStrings = array (
   'LBL_DESCRIPTION' => 'Описание',
   'LBL_ADD_RECORD' => 'Добавить Расписание',
   'Name' => 'Откуда',
-  'LBL_WHERE' => 'Куда',
+  'LBL_WHERE_ADDRESS' => 'Куда',
   'LBL_TRIPS' => 'Количество поездок',   
   'LBL_CHILDRENS' => 'Количество детей',   
   'LBL_DATE' => 'Даты отправления',
@@ -33,7 +33,10 @@ $languageStrings = array (
   'Not paid' => 'Не оплачено',
   'Paid' => 'Оплачено',
   'Executed' => 'Исполнено',
-  '' => '',
+  'LBL_SCHEDULED_WAIT_FROM' => 'Запланированное ожидание в точке Куда (мин)',
+  'LBL_SCHEDULED_WAIT_WHERE' => 'Запланированное ожидание в точке Куда (мин)',
+  'LBL_PARKING_INFO' => 'Информация о парковке'
+
 
 );
 
