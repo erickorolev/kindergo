@@ -55,8 +55,8 @@ $languageStrings = array(
     'Phone' => 'Телефон',
     'Secondary Email' => 'Второй адрес электронной почты',
     'Email' => 'Email',    
-    'LBL_FROM' => 'Откуда',   
-    'LBL_WHERE' => 'Куда',
+    'LBL_FROM_ADDRESS' => 'Откуда',   
+    'LBL_WHERE_ADDRESS' => 'Куда',
     'LBL_TRIPS' => 'Количество поездок',   
     'LBL_CHILDRENS' => 'Количество детей',   
 );
