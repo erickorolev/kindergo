@@ -40,7 +40,10 @@ $languageStrings = array (
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
   'Canceled' => 'Отменена',
-  'LBL_TIMETABLE_STATUS' => 'Статус'
+  'LBL_TIMETABLE_STATUS' => 'Статус',
+  'LBL_PAYMENT_MARK' => 'Отметка об оплате',
+  'LBL_CHILDRENS_AGE' => 'Возраст детей',
+
 
 
 );
