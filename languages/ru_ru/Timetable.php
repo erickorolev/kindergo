@@ -35,7 +35,11 @@ $languageStrings = array (
   'Executed' => 'Исполнено',
   'LBL_SCHEDULED_WAIT_FROM' => 'Запланированное ожидание в точке Куда (мин)',
   'LBL_SCHEDULED_WAIT_WHERE' => 'Запланированное ожидание в точке Куда (мин)',
-  'LBL_PARKING_INFO' => 'Информация о парковке'
+  'LBL_PARKING_INFO' => 'Информация о парковке',
+  'Pending' => 'В ожидании',
+  'Performed' => 'Выполняется',
+  'Completed' => 'Выполнена',
+  'Canceled' => 'Отменена'
 
 
 );
