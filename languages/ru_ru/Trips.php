@@ -13,7 +13,7 @@ $languageStrings = array (
   'Trips' => 'Поездки',
   'SINGLE_Trips' => 'Поездка',
   'Trips ID' => 'ID Поездки',
-  'LBL_TRIPS_INFORMATION' => 'Информация о Поездках',
+  'LBL_TRIPS_INFORMATION' => 'Информация о Поездке',
   'Created Time' => 'Дата создания',
   'Modified Time' => 'Дата изменения',
   'Modified By' => 'Изменено пользователем',
@@ -29,6 +29,10 @@ $languageStrings = array (
   'LBL_SCHEDULED_WAIT' => 'Запланированное ожидание (мин)',
   'LBL_NOT_SCHEDULED_WAIT' => 'Незапланированное ожидание (мин)',
   'LBL_STATUS' => 'Статус',
+  'Appointed' => 'Назначена',
+  'Performed' => 'Выполняется',
+  'Completed' => 'Выполнена',
+  'Canceled' => 'Отменена'
 );
 
 $jsLanguageStrings = array (
