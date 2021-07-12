@@ -16,7 +16,7 @@ $languageStrings = array(
 	'LBL_INVOICE_INFORMATION'      => 'Информация Счета', 
     // SalesPlatform.ru begin New localization
         'LBL_INVOICE_ADD_ACT' => 'Создать Акт',
-	'Sales Order'                  => 'Заказ',
+	'Sales Order'                  => 'Сопровождение',
     //'Sales Order'                  => 'Заказ на Продажу',
     // SalesPlatform.ru end
 	'Customer No'                  => 'Номер Клиента'   , 
@@ -49,6 +49,9 @@ $languageStrings = array(
     'LBL_THIS' => 'Это',
     'LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM' => 'Удаляется из системы. Пожалуйста, удалите или замените этот элемент',
     'LBL_THIS_LINE_ITEM_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_THIS_LINE_ITEM' => 'Эта позиция удаляется из системы,пожалуйста, удалите эту строку элементов',
+    'LBL_ONLINE_PAYMENT' => 'Ссылка на онлайн оплату'
+
+
     );
 
 // SalesPlatform.ru begin SPConfiguration fix
