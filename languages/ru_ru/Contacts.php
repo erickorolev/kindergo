@@ -77,8 +77,8 @@ $languageStrings = array(
     'Inactive' => 'Неактивный',
     'Standby' => 'В резерве',
     'LBL_MIDDLE_NAME' => 'Отчество',
-    'СAR_YEAR' => 'Год автомобиля',
-    'СAR_MODEL' => 'Марка автомобиля',
+    'LBL_CAR_YEAR' => 'Год автомобиля',
+    'LBL_CAR_MODEL' => 'Марка автомобиля',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
