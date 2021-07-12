@@ -64,6 +64,7 @@ $languageStrings = array(
     'LBL_ATTENDANT_GENDER' => 'Предпочитаемый пол сопровождающего',
     'Female' => 'Женщина',
     'Male' => 'Мужчина',
+    'No matter' => 'Не важно'
     'LBL_GENDER' => 'Пол',
     'LBL_ATTENDANT_CATEGORY' => 'Категория',
     'LBL_VEHICLE_DATA' => 'Данные об автомобиле',
@@ -75,6 +76,9 @@ $languageStrings = array(
     'Active' => 'Активный',
     'Inactive' => 'Неактивный',
     'Standby' => 'В резерве',
+    'LBL_MIDDLE_NAME' => 'Отчество',
+    'СAR_YEAR' => 'Год автомобиля',
+    'СAR_MODEL' => 'Марка автомобиля',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
