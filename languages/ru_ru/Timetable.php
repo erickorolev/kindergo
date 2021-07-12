@@ -41,8 +41,11 @@ $languageStrings = array (
   'Completed' => 'Выполнена',
   'Canceled' => 'Отменена',
   'LBL_TIMETABLE_STATUS' => 'Статус',
-  'LBL_PAYMENT_MARK' => 'Отметка об оплате',
+  'LBL_PAYMENT_MARK' => 'Оплачен',
   'LBL_CHILDRENS_AGE' => 'Возраст детей',
+  'LBL_BILL_PAID' => 'Оплачен ли счет',
+  'No' => 'Нет',
+  'Yes' => 'Да'
 
 
 
