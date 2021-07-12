@@ -44,6 +44,9 @@ $languageStrings = Array(
     'Canceled' => 'Отменен',
     'Delayed' => 'Просрочен',
     'Spstatus' => 'Статус',
+
+    'Online payment' => 'Онлайн платеж',
+    'Bank payment' => 'Оплата по банку',
     
     'LBL_CASH_ORDER' => 'Приходный кассовый ордер',
     'Analytics Code' => 'Код аналитического учета',
