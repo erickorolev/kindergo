@@ -39,7 +39,8 @@ $languageStrings = array (
   'Pending' => 'В ожидании',
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
-  'Canceled' => 'Отменена'
+  'Canceled' => 'Отменена',
+  'LBL_TIMETABLE_STATUS' => 'Статус'
 
 
 );
