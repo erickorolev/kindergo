@@ -8,6 +8,23 @@
  * All Rights Reserved.
  ************************************************************************************/
 $languageStrings = array(
+
+	 // Поля связанного модуля Сопровождение
+    'Name' => 'Откуда',
+ 	'LBL_WHERE_ADDRESS' => 'Куда',
+	  'LBL_TRIPS' => 'Количество поездок',   
+	  'LBL_CHILDRENS' => 'Количество детей',   
+	  'LBL_DATE' => 'Даты отправления',
+	  'LBL_TIME' => 'Время отправления',
+	  'LBL_DURATION' => 'Длительность маршрута (мин)',
+	  'LBL_DISTANCE' => ' Дистанция маршрута (км)',
+	  'LBL_SCHEDULED_WAIT' => 'Запланированное ожидание (мин)',
+	  'LBL_SCHEDULED_WAIT_FROM' => 'Запланированное ожидание в точке Откуда (мин)',
+	  'LBL_SCHEDULED_WAIT_WHERE' => 'Запланированное ожидание в точке Куда (мин)',
+	  'LBL_CHILDRENS_AGE' => 'Возраст детей',
+	  'LBL_PARKING_INFO' => 'Информация о парковке',
+
+
 	'APPTITLE'                     => 'SalesPlatform Vtiger CRM'                  , // TODO: Review
 	'POWEREDBY'                    => 'SalesPlatform Vtiger CRM'       , // TODO: Review
 	'LBL_READ_LICENSE'             => 'Прочитать лицензию', // KEY 5.x: LNK_READ_LICENSE
