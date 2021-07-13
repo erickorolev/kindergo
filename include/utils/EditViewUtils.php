@@ -177,7 +177,7 @@ function getAssociatedProducts($module, $focus, $seid = '', $refModuleName = fal
                                                     FROM vtiger_seattachmentsrel, vtiger_attachments, vtiger_inventoryproductrel 
                                                     WHERE vtiger_seattachmentsrel.crmid=vtiger_inventoryproductrel.productid AND 
                                                         vtiger_attachments.attachmentsid=vtiger_seattachmentsrel.attachmentsid 
-                                                    GROUP BY attachment_crmid DESC
+                                                /*   GROUP BY attachment_crmid DESC */
                                                   ) attachments
                                                 ON attachments.attachment_crmid=vtiger_inventoryproductrel.productid                                                
  		                        WHERE id=?
