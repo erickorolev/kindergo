@@ -3,7 +3,8 @@
         "spatie/ray": "^1.26",
         "ezyang/htmlpurifier": "^4.13",
         "phpoffice/phpspreadsheet": "^1.18",
-        "smarty/smarty": "^3.1"
+        "smarty/smarty": "^3.1",
+        "sentry/sdk": "^3.1"
     },
     "require-dev": {
         "kint-php/kint": "^3.3"
