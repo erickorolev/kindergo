@@ -9,7 +9,7 @@
  ************************************************************************************/
 
 global $sentry_url;
-Sentry\init(['dsn' => $sentry_url ]);
+//Sentry\init(['dsn' => $sentry_url ]);
 require_once 'includes/runtime/Cache.php';
 include_once('vtlib/Vtiger/ModuleBasic.php');
 /**
