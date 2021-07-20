@@ -45,8 +45,8 @@ $languageStrings = array (
   'LBL_CHILDRENS_AGE' => 'Возраст детей',
   'LBL_BILL_PAID' => 'Оплачен ли счет',
   'No' => 'Нет',
-  'Yes' => 'Да'
-
+  'Yes' => 'Да',
+  'LBL_INSURANCES' => 'Количество страховок'
 
 
 );
