@@ -58,7 +58,8 @@ $languageStrings = array(
     'LBL_FROM_ADDRESS' => 'Откуда',   
     'LBL_WHERE_ADDRESS' => 'Куда',
     'LBL_TRIPS' => 'Количество поездок',   
-    'LBL_CHILDRENS' => 'Количество детей'
+    'LBL_CHILDRENS' => 'Количество детей',
+      'LBL_TIMETABLE_PERIOD' => 'Период сопровождения (мес)'
 
 );
 $jsLanguageStrings = array(
