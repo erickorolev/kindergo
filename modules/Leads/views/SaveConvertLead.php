@@ -7,15 +7,25 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
+
+/*
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1); 
+/**/
+
 vimport('~~/include/Webservices/ConvertLead.php');
 
 class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 
-	public function requiresPermission(\Vtiger_Request $request) {
-		$permissions = parent::requiresPermission($request);
-		$permissions[] = array('module_parameter' => 'module', 'action' => 'DetailView', 'record_parameter' => 'record');
-		$permissions[] = array('module_parameter' => 'module', 'action' => 'ConvertLead', 'record_parameter' => 'record');
-		return $permissions;
+	function checkPermission(Vtiger_Request $request) {
+		$moduleName = $request->getModule();
+		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+
+		$currentUserPrivilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+		if(!$currentUserPrivilegesModel->hasModuleActionPermission($moduleModel->getId(), 'ConvertLead')) {
+			throw new AppException(vtranslate('LBL_CONVERT_LEAD_PERMISSION_DENIED', $moduleName));
+		}
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -57,14 +67,10 @@ class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 					} elseif ($fieldModel->getFieldDataType() === 'date') {
 						$fieldValue = DateTimeField::convertToDBFormat($fieldValue);
 					} elseif ($fieldModel->getFieldDataType() === 'reference' && $fieldValue) {
-						if($fieldModel->get('uitype') == 77){
-                            $fieldValue = vtws_getWebserviceEntityId(vtws_getOwnerType($fieldValue), $fieldValue);
-                        } else {
-                            $ids = vtws_getIdComponents($fieldValue);
-                            if (count($ids) === 1) {
-                                $fieldValue = vtws_getWebserviceEntityId(getSalesEntityType($fieldValue), $fieldValue);
-                            }
-                        }
+						$ids = vtws_getIdComponents($fieldValue);
+						if (count($ids) === 1) {
+							$fieldValue = vtws_getWebserviceEntityId(getSalesEntityType($fieldValue), $fieldValue);
+						}
 					}
 					$entityValues['entities'][$module][$fieldName] = $fieldValue;
 				}
@@ -76,7 +82,13 @@ class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 			$this->showError($request, $e);
 			exit;
 		}
-
+		
+		if(!empty($result['Potentials'])) {
+			$potIdComponents = vtws_getIdComponents($result['Potentials']);
+			$potentialsId = $potIdComponents[1];
+			header("Location: index.php?module=Potentials&action=Convert&mode=CreateQ&record=$potentialsId&leadid=".$recordId);
+			exit; 
+		}
 		if(!empty($result['Accounts'])) {
 			$accountIdComponents = vtws_getIdComponents($result['Accounts']);
 			$accountId = $accountIdComponents[1];

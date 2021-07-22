@@ -43,8 +43,20 @@
 									>{if $IS_SELECT_BUTTON eq false}<i class="fa fa-plus"></i>&nbsp;{/if}&nbsp;{$RELATED_LINK->getLabel()}</button>
 							{/if}
 						{/if}
+						
 					</div>
 				{/foreach}
+				
+		
+				{if $MODULE=="Potentials" && $RELATED_MODULE_NAME=="Quotes"}
+				<button class="btn btn-default" id="" onclick="PDFMaker_Actions_Js.getPDFListViewPopup2v2(this,'Quotes');">Экспорт в пдф</button>
+				{/if}
+				
+				{if $MODULE=="Potentials" && $RELATED_MODULE_NAME=="SalesOrder"}
+				<button class="btn btn-default" id="" onclick="PDFMaker_Actions_Js.getPDFListViewPopup2v2(this,'SalesOrder');">Экспорт в пдф</button>
+				{/if}
+				
+				
 				&nbsp;
 			</div>
 			{assign var=CLASS_VIEW_ACTION value='relatedViewActions'}

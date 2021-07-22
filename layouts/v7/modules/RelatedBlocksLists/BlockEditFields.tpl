@@ -5,6 +5,10 @@
 * Portions created by VTExperts.com. are Copyright(C) VTExperts.com.
 * All Rights Reserved.
 * ****************************************************************************** */*}
+
+==={$BLOCKID}===
+
+
 {assign var=CUSTOMIZABLE_OPTIONS value = RelatedBlocksLists_Module_Model::getCustomizableOptionsForBlock($BLOCKID)}
 {assign var=IS_MODULE_EDITABLE value=$RELMODULE_MODEL->isPermitted('EditView') && $CUSTOMIZABLE_OPTIONS->chk_edit_view_add_btn}
 {assign var=IS_MODULE_DELETABLE value=$RELMODULE_MODEL->isPermitted('Delete') && $CUSTOMIZABLE_OPTIONS->chk_edit_delete_icon}
@@ -115,7 +119,8 @@
     </tr>
 </table>
 <div class="row relatedRecordActions" style="background-color: #EFEFEF;padding: 5px 0px;margin: 0;">
-    {if ($IS_MODULE_DELETABLE && $RELATED_RECORD_MODEL->getId() neq '') || $RELATED_RECORD_MODEL->getId() eq ''}
+    <span class='openMap' blockid='data-row-no'>{vtranslate('LBL_MAP')}</span>
+	{if ($IS_MODULE_DELETABLE && $RELATED_RECORD_MODEL->getId() neq '') || $RELATED_RECORD_MODEL->getId() eq ''}
         <a class="relatedBtnDelete pull-right" data-rel-module="{$RELMODULE_NAME}" data-record-id="{$RELATED_RECORD_MODEL->getId()}" style="margin-right:25px; color: #0088cc">{vtranslate('LBL_DELETE')}</a>
     {/if}
     {if $smarty.request.modeView eq 'Detail'}

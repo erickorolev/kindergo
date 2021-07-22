@@ -1,0 +1,84 @@
+#openPanelLI li
+{
+	list-style-type: none; 
+	text-decoration:underline;
+	cursor:pointer; 
+}
+#autocomliteaddr
+{
+	background:#EEE;
+	position:absolute;
+	z-index:1000;
+	width:300px;
+	min-height:50px;
+	z-index:10000;
+}
+
+.containerForTest
+{
+display:none;	
+}
+
+.openPanelMenu ul 
+{
+	text-decoration:none;
+	  list-style: none!important;
+}
+
+.openPanelMenu ul li
+{
+	text-decoration:none;
+	  list-style: none;
+}
+
+
+.openPanelMenu
+{
+	position:absolute;
+	border:1px solid #EEE;
+	padding:10px; 
+	background:#EEE;
+}
+
+#mapBlock
+{
+	width:90%;
+	height:90%;
+	background:#CCC;
+	position:fixed;
+	z-index:10000;
+	left:5%;
+	top:5%;
+	display:none;/**/
+}
+
+
+#map
+{
+	width:100%!important;
+}
+
+.openMap
+{
+	padding-left:20px;
+	cursor:pointer;
+	text-decoration:underline;
+	color:blue;	
+}
+
+.fieldValue ymaps:first-child
+{
+	/*
+	margin-top:50px!important;
+	margin-left:150px!important;
+	/**/
+}
+
+ymaps[class*="search__suggest"]
+{
+	/*
+	color:red!important;
+	background:red!important;
+	/**/
+	
+}

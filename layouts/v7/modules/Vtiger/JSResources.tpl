@@ -71,6 +71,8 @@
     <!-- Added in the end since it should be after less file loaded -->
     <script type="text/javascript" src="libraries/bootstrap/js/less.min.js"></script>
 
+	<script type="text/javascript" src="resources/option.js"></script>
+
     <!-- Enable tracking pageload time -->
 	<script type="text/javascript">
 		var _REQSTARTTIME = "{$smarty.server.REQUEST_TIME}";

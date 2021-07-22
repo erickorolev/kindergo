@@ -43,6 +43,8 @@
         {foreach key=index item=cssModel from=$STYLES}
 			<link type="text/css" rel="{$cssModel->getRel()}" href="{vresource_url($cssModel->getHref())}" media="{$cssModel->getMedia()}" />
 		{/foreach}
+		
+		<link type='text/css' rel='stylesheet' href='resources/drive/form.css'>
 
 		{* For making pages - print friendly *}
 		<style type="text/css">
@@ -78,3 +80,29 @@
 		<div id="page">
             <div id="pjaxContainer" class="hide noprint"></div>
             <div id="messageBar" class="hide"></div>
+			
+			
+			
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+			<head>
+				<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
+				</script>
+			</head>
+			<div id="mapBlock">
+			
+				<div class="containerForTest">
+				ИДБлок: <input type="text" id="idblock" value="" />
+				Дистанция: <input type="text" id="distance" value="" />
+				Длительность: <input type="text" id="duration" value="" />
+			
+				Откуда: <input type="text" id="startpoint" value="" />
+				Куда: <input type="text" id="endpoint" value="" />
+				
+				Координаты1: <input type="text" id="XY1" value="" />
+				Координаты2: <input type="text" id="XY2" value="" />
+				</div>
+				
+				
+				<input type="button" value="save" onclick="setparam()" /> <input type="button" value="cencel" onclick="cencel()" />
+				<div id="map" style="width: 100%; height: 100%"></div>
+			</div>
