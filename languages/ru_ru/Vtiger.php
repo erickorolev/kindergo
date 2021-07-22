@@ -23,6 +23,7 @@ $languageStrings = array(
 	  'LBL_SCHEDULED_WAIT_WHERE' => 'Запланированное ожидание в точке Куда (мин)',
 	  'LBL_CHILDRENS_AGE' => 'Возраст детей',
 	  'LBL_PARKING_INFO' => 'Информация о парковке',
+	  'LBL_MAP' => 'Открыть карту',
 
 
 	'APPTITLE'                     => 'SalesPlatform Vtiger CRM'                  , // TODO: Review
