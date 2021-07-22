@@ -35,7 +35,8 @@ $languageStrings = array (
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
   'Canceled' => 'Отменена',
-  'LBL_PARKING_COST' => 'Стоимость парковки'
+  'LBL_PARKING_COST' => 'Стоимость парковки',
+  'LBL_TRIPS_CONTACT' => 'Контакт'
 );
 
 $jsLanguageStrings = array (
