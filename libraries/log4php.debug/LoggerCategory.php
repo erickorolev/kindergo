@@ -184,7 +184,7 @@ class LoggerCategory {
      */
     function fatal($message, $caller = null)
     {
-        \Sentry\withScope(function (\Sentry\State\Scope $scope): void { $scope->setLevel(\Sentry\Severity::fatal()); \Sentry\captureMessage($message); });
+       // \Sentry\withScope(function (\Sentry\State\Scope $scope): void { $scope->setLevel(\Sentry\Severity::fatal()); \Sentry\captureMessage($message); });
         $fatalLevel = LoggerLevel::getLevelFatal();
         if ($this->repository->isDisabled($fatalLevel)) {
             return;
