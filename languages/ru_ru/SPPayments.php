@@ -56,7 +56,10 @@ $languageStrings = Array(
     
     'LBL_EXPORT_TO_PDF' => 'Экспорт в PDF:',
     'LBL_SEND_MAIL_PDF' => 'Отправить Email в PDF:',
-    
+
+    'LBL_ATTENDANTA_SIGNATURE' => 'Подпись сопровождающего',
+    'Signed by' => 'Подписан',
+    'Disputed' => 'Оспорен',
 );
 
 // SalesPlatform.ru begin SPConfiguration fix
