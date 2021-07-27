@@ -300,7 +300,7 @@ class Vtiger_Tag_Model extends Vtiger_Base_Model {
 		return $db->num_rows($result) > 0 ? true : false;
 	}
 
-	/**
+/**
      * Function used to return tags for list for records
      * @param <Array> $records - record ids
      * @return <Array> tags
