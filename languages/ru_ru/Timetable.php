@@ -46,7 +46,8 @@ $languageStrings = array (
   'LBL_BILL_PAID' => 'Оплачен ли счет',
   'No' => 'Нет',
   'Yes' => 'Да',
-  'LBL_INSURANCES' => 'Количество страховок'
+  'LBL_INSURANCES' => 'Количество страховок',
+  'LBL_CLIENT' => 'Клиент'
 
 
 );
