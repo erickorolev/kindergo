@@ -61,7 +61,8 @@ $languageStrings = Array(
     'Signed by' => 'Подписан',
     'Disputed' => 'Оспорен',
     'LBL_DISPUTE_REASON' => 'Причина оспаривания',
-    'Not specified' => 'Не указано'
+    'Not specified' => 'Не указано',
+    'Waiting' => 'Ожидает подписи',
 );
 
 // SalesPlatform.ru begin SPConfiguration fix
