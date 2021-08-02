@@ -82,6 +82,7 @@ $languageStrings = array(
     'Driver' => 'Авто',
     'Pedestrian' => 'Пешком',
     'LBL_CAR_COLOR' => 'Цвет автомобиля',
+    'Other' => 'Не указано',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',

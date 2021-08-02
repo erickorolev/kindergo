@@ -60,7 +60,8 @@ $languageStrings = Array(
     'LBL_ATTENDANTA_SIGNATURE' => 'Подпись сопровождающего',
     'Signed by' => 'Подписан',
     'Disputed' => 'Оспорен',
-    'LBL_DISPUTE_REASON' => 'Причина оспаривания'
+    'LBL_DISPUTE_REASON' => 'Причина оспаривания',
+    'Not specified' => 'Не указано'
 );
 
 // SalesPlatform.ru begin SPConfiguration fix

@@ -31,6 +31,7 @@ $languageStrings = array (
   'LBL_NOT_SCHEDULED_WAIT_FROM' => 'Незапланированное ожидание в точке Откуда (мин)',
   'LBL_NOT_SCHEDULED_WAIT_WHERE' => 'Незапланированное ожидание в точке Куда (мин)',
   'LBL_TRIPS_STATUS' => 'Статус',
+  'Pending' => 'В ожидании',
   'Appointed' => 'Назначена',
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
