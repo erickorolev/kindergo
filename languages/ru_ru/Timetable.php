@@ -47,7 +47,8 @@ $languageStrings = array (
   'No' => 'Нет',
   'Yes' => 'Да',
   'LBL_INSURANCES' => 'Количество страховок',
-  'LBL_CLIENT' => 'Клиент'
+  'LBL_CLIENT' => 'Клиент',
+  'Not specified' => 'Не указано'
 
 
 );
