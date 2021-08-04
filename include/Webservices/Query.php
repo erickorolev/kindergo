@@ -36,9 +36,11 @@
 		
 		// Cache the instance for re-use
 		if(!isset($vtws_query_cache[$moduleName]['handler'])) {
+		    /** @var VtigerModuleOperation $handler */
 			$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
 			$vtws_query_cache[$moduleName]['handler'] = $handler;
 		} else {
+            /** @var VtigerModuleOperation $handler */
 			$handler = $vtws_query_cache[$moduleName]['handler'];
 		}
 		// END	
@@ -60,7 +62,7 @@
 		if(!$meta->hasReadAccess()){
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED,"Permission to read is denied");
 		}
-		
+
 		$result = $handler->query($q);
 		VTWS_PreserveGlobal::flush();
 		return $result;
