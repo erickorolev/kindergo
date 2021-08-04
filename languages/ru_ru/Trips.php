@@ -36,10 +36,11 @@ $languageStrings = array (
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
   'Canceled' => 'Отменена',
-  'LBL_PARKING_COST' => 'Стоимость парковки',
+  'LBL_PARKING_COST' => 'Стоимость парковки (руб)',
   'LBL_TRIPS_CONTACT' => 'Клиент',
   'LBL_TIMETABLE_PERIOD' => 'Период сопровождения (мес)',
-  'LBL_ATTENDANT_INCOME' => 'Доход сопровождающего'
+  'LBL_ATTENDANT_INCOME' => 'Доход сопровождающего (руб)',
+  'LBL_TRIPS_IMAGES_LIST' => 'Ссылки на документы'
 );
 
 $jsLanguageStrings = array (
