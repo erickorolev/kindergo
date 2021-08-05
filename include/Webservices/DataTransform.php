@@ -8,12 +8,19 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+require_once 'modules/Vtiger/services/ImageReceiver.php';
+
 	class DataTransform{
 
 		public static $recordString = "record_id";
 		public static $recordModuleString = 'record_module';
 		public static $recordSource = 'WEBSERVICE';
 
+		/**
+		 * @param array $row
+		 * @param VtigerCRMObjectMeta $meta
+		 * @return array|mixed
+		 */
 		function sanitizeDataWithColumn($row,$meta){
 
 			$newRow = array();
@@ -23,10 +30,20 @@
 			$fieldColumnMapping = $meta->getFieldColumnMapping();
 			$columnFieldMapping = array_flip($fieldColumnMapping);
 			foreach($row as $col=>$val){
-				if(array_key_exists($col,$columnFieldMapping))
+				if (array_key_exists($col,$columnFieldMapping)) {
 					$newRow[$columnFieldMapping[$col]] = $val;
+				}
 			}
 			$newRow = DataTransform::sanitizeData($newRow,$meta,true);
+			if (array_key_exists(Vtiger_ImageReceiver_Service::AVATAR_FIELD, $row)) {
+				$receiverService = new Vtiger_ImageReceiver_Service((int) $row[$meta->getIdColumn()], Vtiger_ImageReceiver_Service::AVATAR_FIELD, $row[Vtiger_ImageReceiver_Service::AVATAR_FIELD]);
+				$newRow['avatar'] = $receiverService->getAvatar();
+			}
+			if (array_key_exists(Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD, $row)) {
+				$receiverService = new Vtiger_ImageReceiver_Service((int) $row[$meta->getIdColumn()], Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD, $row[Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD]);
+				$newRow['images'] = $receiverService->getImages();
+			}
+
 			return $newRow;
 		}
 
