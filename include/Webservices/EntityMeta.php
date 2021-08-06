@@ -55,6 +55,18 @@ abstract class EntityMeta{
 		
 		return $this->emailFields;
 	}
+
+	public function getImageFields() {
+		if ($this->imageFields === null) {
+			$this->imageFields = array();
+			foreach ($this->moduleFields as $fieldName => $webserviceField) {
+				if ($webserviceField->getUIType() == 69) {
+					$this->imageFields[] = $fieldName;
+				}
+			}
+		}
+		return $this->imageFields;
+	}
 	
 	public function getFieldColumnMapping(){
 		if($this->fieldColumnMapping === null){

@@ -566,6 +566,51 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 		return $updatelog;
 	}
 
+	public static function getUpdateLogEditMessage($ticketid, $column_fields, $assigntype) {
+		global $adb, $current_user;
+		//First retrieve the existing information
+		$crmEntityTable = CRMEntity::getcrmEntityTableAlias('HelpDesk');
+		$tktresult = $adb->pquery('select * from vtiger_troubletickets where ticketid=?', array($ticketid));
+		$crmresult = $adb->pquery('select * from '.$crmEntityTable.' where crmid=?', array($ticketid));
+
+		$updatelog = decode_html($adb->query_result($tktresult, 0, 'update_log'));
+
+		$old_owner_id = $adb->query_result($crmresult, 0, 'smownerid');
+		$old_status = $adb->query_result($tktresult, 0, 'status');
+		$old_priority = $adb->query_result($tktresult, 0, 'priority');
+		$old_severity = $adb->query_result($tktresult, 0, 'severity');
+		$old_category = $adb->query_result($tktresult, 0, 'category');
+
+		//Assigned to change log
+		if ($column_fields['assigned_user_id'] != $old_owner_id) {
+			$owner_name = getOwnerName($column_fields['assigned_user_id']);
+			if ($assigntype == 'T') {
+				$updatelog .= ' Transferred to group '.$owner_name.'\.';
+			} else {
+				$updatelog .= ' Transferred to user '.decode_html($owner_name).'\.'; // Need to decode UTF characters which are migrated from versions < 5.0.4.
+			}
+		}
+		//Status change log
+		if ($old_status != $column_fields['ticketstatus'] && $column_fields['ticketstatus'] != '') {
+			$updatelog .= ' Status Changed to '.$column_fields['ticketstatus'].'\.';
+		}
+		//Priority change log
+		if ($old_priority != $column_fields['ticketpriorities'] && $column_fields['ticketpriorities'] != '') {
+			$updatelog .= ' Priority Changed to '.$column_fields['ticketpriorities'].'\.';
+		}
+		//Severity change log
+		if ($old_severity != $column_fields['ticketseverities'] && $column_fields['ticketseverities'] != '') {
+			$updatelog .= ' Severity Changed to '.$column_fields['ticketseverities'].'\.';
+		}
+		//Category change log
+		if ($old_category != $column_fields['ticketcategories'] && $column_fields['ticketcategories'] != '') {
+			$updatelog .= ' Category Changed to '.$column_fields['ticketcategories'].'\.';
+		}
+
+		$updatelog .= ' -- '.date("l dS F Y h:i:s A").' by '.$current_user->user_name.'--//--';
+		return $updatelog;
+	}
+
 	/**
 	 * Move the related records of the specified list of id's to the given record.
 	 * @param String This module name
