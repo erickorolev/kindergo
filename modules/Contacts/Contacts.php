@@ -1193,7 +1193,7 @@ function get_contactsforol($user_name)
 	function save_module($module)
 	{
 		// now handling in the crmentity for uitype 69
-		//$this->insertIntoAttachment($this->id,$module);
+		$this->insertIntoAttachment($this->id,$module);
 	}
 
 	/**
@@ -1217,7 +1217,7 @@ function get_contactsforol($user_name)
 			    if($files['name'] != '' && $files['size'] > 0)
 			    {
 				    $files['original_name'] = vtlib_purify($_REQUEST[$fileindex.'_hidden']);
-				    $file_saved = $this->uploadAndSaveFile($id,$module,$files);
+				    $file_saved = $this->uploadAndSaveFile($id,$module,$files,'Image');
 			    }
 		    }
         // SalesPlatform.ru begin
