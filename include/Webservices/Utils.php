@@ -1351,4 +1351,47 @@ function vtws_getAttachmentRecordId($attachmentId) {
     return $crmid;
 }
 
+function vtws_checkListTypesPermission($moduleName, $user, $return = 'types') {
+	global $adb, $log;
+	$webserviceObject = VtigerWebserviceObject::fromName($adb, $moduleName);
+	$handlerPath = $webserviceObject->getHandlerPath();
+	$handlerClass = $webserviceObject->getHandlerClass();
+	require_once $handlerPath;
+	$handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+	$meta = $handler->getMeta();
+	if (!$meta->isModuleEntity()) {
+		throw new WebServiceException('INVALID_MODULE', "Given module ($moduleName) cannot be found");
+	}
+	// check permission on module
+	$entityName = $meta->getEntityName();
+	$types = vtws_listtypes(null, $user);
+	if (!in_array($entityName, $types['types'])) {
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Permission to perform the operation on module ($moduleName) is denied");
+	}
+	switch ($return) {
+		case 'meta':
+			return $meta;
+			break;
+		case 'types':
+		default:
+			return $types;
+			break;
+	}
+}
+
+function vtws_getWsIdForFilteredRecord($moduleName, $conditions, $user) {
+	global $adb;
+	$queryGenerator = new QueryGenerator($moduleName, $user);
+	$queryGenerator->setFields(array('id'));
+	$queryGenerator->addUserSearchConditions($queryGenerator->constructAdvancedSearchConditions($moduleName, $conditions));
+	$query = $queryGenerator->getQuery(false, 1);
+	$result = $adb->pquery($query, array());
+	if ($adb->num_rows($result) == 0) {
+		return null;
+	}
+	return vtws_getEntityId($moduleName).'x'.$adb->query_result($result, 0, 0);
+}
+
+
+
 ?>
