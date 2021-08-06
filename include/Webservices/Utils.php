@@ -1392,6 +1392,17 @@ function vtws_getWsIdForFilteredRecord($moduleName, $conditions, $user) {
 	return vtws_getEntityId($moduleName).'x'.$adb->query_result($result, 0, 0);
 }
 
+function vtws_getWSID($id) {
+	if (strlen($id)==40) {
+		return CRMEntity::getWSIDfromUUID($id);
+	} elseif (preg_match('/^[0-9]+x[0-9]+$/', $id)) {
+		return $id;
+	} elseif (is_numeric($id)) {
+		return vtws_getEntityId(getSalesEntityType($id)).'x'.$id;
+	} else {
+		return '0x0';
+	}
+}
 
 
 ?>

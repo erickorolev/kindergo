@@ -549,6 +549,23 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 		return $updatelog;
 	}
 
+	public static function getUpdateLogCreateMessage($column_fields, $assigned_group_name, $assigntype) {
+		global $current_user;
+		$updatelog = 'Ticket created. Assigned to ';
+
+		if (!empty($assigned_group_name) && $assigntype == 'T') {
+			$updatelog .= 'group '.(is_array($assigned_group_name)? $assigned_group_name[0] : $assigned_group_name);
+		} elseif (!empty($column_fields['assigned_user_id'])) {
+			$updatelog .= 'user '.getUserFullName($column_fields['assigned_user_id']);
+		} else {
+			$updatelog .= 'user '.getUserFullName($current_user->id);
+		}
+
+		$fldvalue = date('l dS F Y h:i:s A').' by '.$current_user->user_name;
+		$updatelog .= ' -- '.$fldvalue.'--//--';
+		return $updatelog;
+	}
+
 	/**
 	 * Move the related records of the specified list of id's to the given record.
 	 * @param String This module name

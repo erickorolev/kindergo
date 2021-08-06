@@ -2318,4 +2318,18 @@ function appendFromClauseToQuery($query,$fromClause) {
 	return $query;
 }
 
+/** Function to fetch the group name of the specified group
+  * @param $groupId -- Group Id :: Type integer
+  * @returns Group Name :: Type varchar
+ */
+function fetchGroupName($groupId) {
+	global $log, $adb;
+	$log->debug('> fetchGroupName '.$groupId);
+	//Retreving the group Info
+	$result = $adb->pquery('select groupname from vtiger_groups where groupid=?', array($groupId));
+	$groupName=decode_html($adb->query_result($result, 0, 'groupname'));
+	$log->debug('< fetchGroupName');
+	return $groupName;
+}
+
 ?>
