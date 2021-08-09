@@ -1,0 +1,138 @@
+jQuery(function() {
+    var workflowFrontendActions = new Workflow();
+    workflowFrontendActions.checkFrontendActions('init');
+
+    var listenCommentWidget = false;
+
+    if(typeof Vtiger_Detail_Js != 'undefined' && jQuery('#recordId').length > 0) {
+        var thisInstance = Vtiger_Detail_Js.getInstance();
+        var detailContentsHolder = thisInstance.getContentHolder();
+
+        RedooUtils('Workflow2').onFieldChange('div#page').add(function() {
+            workflowFrontendActions.checkFrontendActions('edit');
+        });
+/*
+        detailContentsHolder.on(thisInstance.fieldUpdatedEvent, function(e, params){
+            var fieldName = jQuery(e.target).attr("name");
+            workflowFrontendActions.checkFrontendActions('edit');
+        });
+*/
+        detailContentsHolder.on(thisInstance.widgetPostLoad, function(e, p) {
+            if(listenCommentWidget == false) return;
+
+            if(jQuery('.commentContainer', e.target).length > 0) {
+                listenCommentWidget = false;
+                workflowFrontendActions.checkFrontendActions('edit');
+            }
+        });
+
+        detailContentsHolder.on('click','.detailViewSaveComment', function(e){
+            listenCommentWidget = true;
+        });
+    }
+    /*
+    // TODO: UPDATE for VT7
+    if(typeof Vtiger_Header_Js != 'undefined') {
+        var thisInstance = Vtiger_Header_Js.getInstance();
+        thisInstance.registerQuickCreateCallBack(function(e, b, c) {
+
+            var workflowFrontendActions = new Workflow();
+            workflowFrontendActions.checkFrontendActions('both', e.data.result['_recordId']);
+        });
+    }
+    */
+
+
+    jQuery(window).on('workflow.detail.sidebar.ready', function() {
+        jQuery('#WorkflowDesignerErrorLoaded').hide();
+        var workflow = new Workflow();
+        workflowObj = workflow;
+
+    }).on('workflow.list.sidebar.ready', function() {
+        jQuery('#WorkflowDesignerErrorLoaded').hide();
+        var workflow = new Workflow();
+        workflowObj = workflow;
+
+    });
+    /* jQuery(window).on('workflow.list.sidebar.ready', function() {
+     console.log('List-Sidebar ready');
+     }); */
+
+    if(typeof Vtiger_Edit_Js != 'undefined') {
+        jQuery('body').on(Vtiger_Edit_Js.referenceSelectionEvent, function (e, b, c, d) {
+            var workflowObj = new Workflow();
+            workflowObj.setBackgroundMode(true);
+
+            workflowObj.addExtraEnvironment('source_module', jQuery('[name="module"]').val())
+            workflowObj.addExtraEnvironment('source_record', jQuery('[name="record"]').val());
+
+            workflowObj.execute('WF_REFERENCE', b.record, function() {
+                workflowObj.checkFrontendActions('edit');
+            });
+        });
+    }
+
+    var viewMode = Workflow2Frontend.getViewMode(jQuery('div#page'));
+
+//    if (viewMode == 'detailview' || viewMode == 'summaryview') {
+        Workflow2Frontend.TopbuttonHandler(jQuery('div#page'));
+//    }
+
+    if (jQuery('#module', jQuery('div#page')).length > 0) {
+        if (jQuery('#module', jQuery('div#page')).val() == 'Campaigns' && typeof Campaigns_Detail_Js != 'undefined') {
+
+            // Enable ViewCheck
+            if (
+                typeof WFDFrontendConfig !== 'undefined' &&
+                typeof WFDFrontendConfig['relatedbtn'] !== 'undefined'
+            ) {
+                var viewMode = Workflow2Frontend.getViewMode(jQuery('div#page'));
+
+                if (viewMode == 'relatedview') {
+                    Workflow2Frontend.RelatedListHandler(jQuery('div#page'));
+                }
+
+                jQuery(document).on('postajaxready', function (e) {
+                    var viewMode = Workflow2Frontend.getViewMode(jQuery('div#page'));
+
+                    if (viewMode == 'relatedview') {
+                        Workflow2Frontend.RelatedListHandler(jQuery('div#page'));
+                    }
+                });
+
+                if (jQuery('#module', jQuery('div#page')).length > 0) {
+                    if (jQuery('#module', jQuery('div#page')).val() == 'Campaigns' && typeof Campaigns_Detail_Js != 'undefined') {
+                        thisInstance = Campaigns_Detail_Js.getInstance();
+                        var detailContentsHolder = thisInstance.getContentHolder();
+                        var detailContainer = detailContentsHolder.closest('div.detailViewInfo');
+                        jQuery('.related', detailContainer).on('click', 'li', function (e, urlAttributes) {
+                            window.setTimeout(function () {
+                                var viewMode = Workflow2Frontend.getViewMode(jQuery('div#page'));
+
+                                if (viewMode == 'relatedview') {
+                                    Workflow2Frontend.RelatedListHandler(jQuery('div#page'));
+                                }
+                            }, 1000);
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    RedooUtils('Workflow2').onRelatedListChange().add(function() {
+        var objWorkflow = new Workflow();
+        objWorkflow.showInlineButtons();
+    });
+
+    jQuery('.quickCreateModule, .addButton[data-url*="QuickCreate"]').on('click', function __check() {
+        if(jQuery('.quickCreateContent','.modelContainer').length == 0) {
+            window.setTimeout(__check, 200);
+        } else  {
+            jQuery('#globalmodal form[name="QuickCreate"] .btn[type="submit"]').on('click', function() {
+                WorkflowExecution
+            });
+        }
+    });
+
+});

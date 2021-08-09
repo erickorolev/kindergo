@@ -1,0 +1,12 @@
+{
+    "require": {
+        "setasign/fpdi-fpdf": "^2.0",
+        "setasign/fpdi_pdf-parser": "2.0.3"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://www.setasign.com/downloads/"
+        }
+    ]
+}

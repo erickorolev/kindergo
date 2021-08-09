@@ -1,0 +1,336 @@
+window.WorkflowExecution = function() {
+    this._crmid = null;
+    this._execId = null;
+
+    this._workflowId = null;
+    this._workflowTrigger = null;
+
+    this._execId = null;
+    this._blockID = null;
+
+    this._requestValues = {};
+    this._requestValuesKey = null;
+
+    this._callback = null;
+    this._allowParallel = false;
+    this._allowRedirection = true;
+    this._backgroundMode = false;
+    this._extraEnvironment = {};
+    this._ListViewMode = false;
+    this._FrontendType = undefined;
+
+    this.setFrontendType = function(type) {
+        this._FrontendType = type;
+    };
+
+    this.setEnvironment = function(envVars) {
+        this._extraEnvironment = envVars;
+    };
+
+    this.addEnvironment = function(key, value) {
+        this._extraEnvironment[key] = value;
+    };
+
+    this.setRequestedData = function(values, relatedKey) {
+        this._requestValues = values;
+        this._requestValuesKey = relatedKey;
+    };
+
+    this.allowParallel = function() {
+        this._allowParallel = true;
+    };
+    this.init = function(crmid) {
+        this._crmid = crmid;
+    };
+
+    this.setWorkflowByTrigger = function(triggerName) {
+        this._workflowTrigger = triggerName;
+        this._workflowId = undefined;
+    };
+
+    this.setWorkflowById = function(workflow_id) {
+        this._workflowId = workflow_id;
+        this._workflowTrigger = undefined;
+    };
+
+    this.setBackgroundMode = function(value) {
+        this._backgroundMode = value;
+    };
+    this.setCallback = function(callback) {
+        this._callback = callback;
+    };
+    this.setListViewMode = function(listView) {
+        this._ListViewMode = listView == true;
+    };
+
+    this.enableRedirection = function(value) {
+        this._allowRedirection = value ? true : false;
+    };
+
+    this._handleDownloads = function(response) {
+        var html = '<p>' + response.download_text + '</p>';
+        html += '<ul style="list-style:none;">';
+        $.each(response.downloads, function(index, data) {
+            html += '<li style="margin-bottom:5px;"><a href="' + data.url + '" target="_blank"><i class="fa fa-download" style="margin-right:10px;" aria-hidden="true"></i> <strong>' + data.filename + '</strong></a></li>';
+        });
+        html += '</ul>';
+
+        bootbox.dialog({
+            message:html,
+            closeButton:true,
+            buttons: {
+                ok: {
+                    label: 'Ok',
+                    className: 'btn-success'
+                }
+            }
+        });
+    };
+
+    this._handleRedirection = function(response) {
+        if(this._allowRedirection === true) {
+            if(response["redirection_target"] == "same") {
+                window.location.href = response["redirection"];
+                return true;
+            } else {
+                window.open(response["redirection"]);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    this.setContinue = function(execID, blockID) {
+        this._execId = execID;
+        this._blockID = blockID;
+    };
+
+    this.executeWithForm = function(form) {
+        if(typeof jQuery(form).ajaxSubmit == 'undefined') {
+            console.error('jquery.forms plugin requuired!');
+            return;
+        }
+
+        WorkflowRunning = true;
+        RedooUtils('Workflow2').blockUI({ message: '<h4 style="padding:5px 0;"><img src="modules/Workflow2/icons/sending.gif" style="margin-bottom:20px;" /><br/>Please wait ...</h4>' });
+
+        jQuery(form).ajaxSubmit({
+            'url' : "index.php",
+            'type': 'post',
+            data: {
+                "module" : "Workflow2",
+                "action" : "ExecuteNew",
+
+                'crmid' : this._crmid,
+
+                'workflowID' : this._workflowId === null ? undefined : this._workflowId,
+                'allowParallel': this._allowParallel ? 1 : 0,
+
+                'continueExecId': this._execId === null ? undefined : this._execId,
+                'continueBlockId': this._blockID === null ? undefined : this._blockID,
+                'requestValues': this._requestValues === null ? undefined : this._requestValues,
+                'requestValuesKey': this._requestValuesKey === null ? undefined : this._requestValuesKey,
+                'extraEnvironment': this._extraEnvironment,
+                'listviewmode': this._ListViewMode ? 1 : 0
+            },
+            success:jQuery.proxy(this.executionResponse, this),
+            error:jQuery.proxy(this.executionResponse, this)
+        });
+
+    };
+
+    this.frontendWorkflows = function(workflowIDs, record) {
+        var dfd = jQuery.Deferred();
+
+        RedooAjax('Workflow2').post('index.php', {
+            'module': 'Workflow2',
+            'action': 'FrontendWorkflowExec',
+            'workflow_ids': workflowIDs,
+            'record': record,
+            'dataType': 'json'
+        }).then($.proxy(function(data) {
+            //this.executionResponse(data);
+
+            dfd.resolve( data );
+        }, this));
+
+        return dfd.promise();
+    };
+
+    this.execute = function() {
+        if(this._backgroundMode === false) {
+            RedooUtils('Workflow2').blockUI({message: '<h4 style="padding:5px 0;"><img src="modules/Workflow2/icons/sending.gif" style="margin-bottom:20px;"/><br/>Please wait ...</h4>'});
+        }
+
+        WorkflowRunning = true;
+        jQuery.post("index.php", {
+                "module" : "Workflow2",
+                "action" : "ExecuteNew",
+                //XDEBUG_PROFILE:1,
+
+                'frontendtype': this._FrontendType,
+                'crmid' : this._crmid,
+
+                'workflowID' : this._workflowId === null ? undefined : this._workflowId,
+                'triggerName' : this._workflowTrigger === null ? undefined : this._workflowTrigger,
+
+                'allowParallel': this._allowParallel ? 1 : 0,
+
+                'continueExecId': this._execId === null ? undefined : this._execId,
+                'continueBlockId': this._blockID === null ? undefined : this._blockID,
+                'requestValues': this._requestValues === null ? undefined : this._requestValues,
+                'requestValuesKey': this._requestValuesKey === null ? undefined : this._requestValuesKey,
+                'extraEnvironment': this._extraEnvironment,
+                'listviewmode': this._ListViewMode ? 1 : 0
+            }
+        ).always(jQuery.proxy(this.executionResponse, this));
+    };
+
+    this.executionResponse = function(responseTMP) {
+        if(typeof responseTMP == 'object' && typeof responseTMP.responseText != 'undefined') {
+            responseTMP = responseTMP.responseText;
+        }
+
+        if(responseTMP.indexOf('Invalid request') !== -1) {
+            alert('You did not do any action in VtigerCRM since a long time. The page needs to be reloaded, before you could use the Workflow Designer.');
+            window.location.reload();
+            return;
+        }
+
+        if(this._backgroundMode === false) {
+            RedooUtils('Workflow2').unblockUI();
+        }
+
+        WorkflowRunning = false;
+
+        var response;
+        try {
+            response = jQuery.parseJSON(responseTMP);
+        } catch(exp) {
+            console.log(exp);
+            console.log(responseTMP);
+            return;
+        }
+
+        if(response !== null && response["result"] == "ready") {
+            if(typeof this._callback == 'function') {
+                var retVal = this._callback.call(this, response);
+
+                if(typeof retVal != 'undefined' && retVal === false) {
+                    return;
+                }
+            }
+
+            if(typeof response["redirection"] != "undefined" && typeof response["downloads"] != "undefined") {
+                this._handleDownloads(response);
+                this._handleRedirection(response);
+                return;
+            } else if(typeof response["redirection"] != "undefined") {
+                this._handleRedirection(response);
+                return;
+            } else if(typeof response["downloads"] != "undefined") {
+                this._handleDownloads(response);
+                return;
+            }
+
+            if(this._allowRedirection === true && this._backgroundMode === false && typeof response["prevent_reload"] === 'undefined') {
+                window.location.reload();
+            }
+        } else if(response !== null && response["result"] == "asktocontinue") {
+            jQuery('body').append('<style type="text/css">.bootbox.modal {z-index: 9999 !important;}</style>');
+            bootbox.confirm({
+                message: response['question'],
+                buttons: {
+                    confirm: {
+                        label: response['LBL_YES'],
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: response['LBL_NO'],
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if(result === true) {
+                        FlexUtils('Workflow2').hideModalBox();
+                        var Execution = new WorkflowExecution();
+                        Execution.setContinue(response['execid'], response['blockid']);
+                        Execution.execute();
+                    }
+                }
+            });
+        } else if(response !== null && response["result"] == "requestForm") {
+            this._requestValuesKey = response['fields_key'];
+            this._execId = response['execId'];
+
+            if(typeof RequestValuesForm2 == 'undefined') {
+                jQuery.getScript('modules/Workflow2/views/resources/js/RequestValuesForm2.js', jQuery.proxy(function() {
+
+                    var requestForm = new RequestValuesForm2(response['fields_key'], response);
+                    requestForm.setCallback(jQuery.proxy(this.submitRequestFields, this));
+                    requestForm.show(response.html, response.script);
+
+                    //response, this._requestValuesKey, response['request_message'], , response['stoppable'], response['pausable'], response['options']);
+                }, this));
+            } else {
+                var requestForm = new RequestValuesForm2(response['fields_key'], response);
+                requestForm.setCallback(jQuery.proxy(this.submitRequestFields, this));
+                requestForm.show(response.html, response.script);
+            }
+        } else if(response !== null && response["result"] == "reqvalues") {
+            this._requestValuesKey = response['fields_key'];
+            this._execId = response['execId'];
+
+            if(typeof RequestValuesForm == 'undefined') {
+                jQuery.getScript('modules/Workflow2/views/resources/js/RequestValuesForm.js', jQuery.proxy(function() {
+                    var requestForm = new RequestValuesForm();
+                    requestForm.show(response, this._requestValuesKey, response['request_message'], jQuery.proxy(this.submitRequestFields, this), response['stoppable'], response['pausable'], response['options']);
+                }, this));
+            } else {
+                var requestForm = new RequestValuesForm();
+                requestForm.show(response, this._requestValuesKey, response['request_message'], jQuery.proxy(this.submitRequestFields, this), response['stoppable'], response['pausable'], response['options']);
+            }
+        } else if(response !== null && response["result"] == "error") {
+            console.log('Errorcode: ' + response.errorcode);
+            app.showModalWindow('<div style="padding:10px 50px;text-align:center;">' + response.message + '</div>');
+        } else {
+            console.log(response);
+        }
+    };
+
+    this.submitRequestFields = function(key, values, value2, form) {
+
+        this._requestValues = {};
+        this._requestValuesKey = key;
+
+        var html = '';
+        jQuery.each(values, jQuery.proxy(function(index, value) {
+            if(value.name.substr(-2) != '[]') {
+                this._requestValues[value.name] = value.value;
+            } else {
+                var varName = value.name.substr(0, value.name.length - 2);
+                if(typeof this._requestValues[varName] === 'undefined') {
+                    this._requestValues[varName] = [];
+                }
+
+                this._requestValues[varName].push(value.value);
+            }
+        }, this));
+
+        if(jQuery('[type="file"]', form).length > 0) {
+            var html = '<form action="#" method="POST" onsubmit="return false;">';
+            jQuery('input, select, button', form).attr('disabled', 'disabled');
+            jQuery('[type="file"]', form).removeAttr('disabled').each(jQuery.proxy(function(index, ele) {
+                var name = jQuery(ele).attr('name');
+                jQuery(ele).attr('name', 'fileUpload[' + name + ']');
+
+                this._requestValues[name] = jQuery(ele).data('filestoreid');
+            }, this));
+            html += '</form>';
+            this.executeWithForm(form);
+            return;
+        }
+
+        this.execute();
+    }
+};

@@ -1,0 +1,5 @@
+Fix - Fix issue with Approval, which do nothing
+Fix - Fix issue with mandatory picklists in request form
+Fix - Fix issue in listview with request from values block
+Fix - Request form headline and buttons can contain variables
+not released

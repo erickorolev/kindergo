@@ -1,0 +1,49 @@
+/**
+ * Created by Stefan on 22.12.2016.
+ */
+var WFBackendUtils = {
+    fillSelectWithPicklistvalues:function(srcPicklist, targetSelect, currentValue) {
+        jQuery(targetSelect).parent().hide();
+        jQuery(srcPicklist).on('change FieldsLoaded', function(e) {
+            var value = $(e.currentTarget).val();
+            RedooAjax('Workflow2').postAction('GetPicklistValues', { picklist:value,'dataType':'json' }).then(function(response) {
+                var html = '';
+                jQuery.each(response, function(key, value) {
+                    console.log(key, currentValue, $.inArray(key, currentValue));
+                    var selected = '';
+                    if(typeof currentValue == 'object' && $.inArray(key, currentValue) != -1) {
+                        selected = 'selected="selected"';
+                    }
+                    if(typeof currentValue == 'string' && key == currentValue) {
+                        selected = 'selected="selected"';
+                    }
+
+                    html += '<option value="' + key + '" ' + selected + '>' + value + '</option>';
+                });
+                jQuery(targetSelect).html(html).select2('val', currentValue);
+                jQuery(targetSelect).parent().show();
+
+            });
+        });
+
+        if(!jQuery(srcPicklist).hasClass('AsyncLoaded')) {
+            RedooAjax('Workflow2').postAction('GetPicklistValues', { picklist:jQuery(srcPicklist).val(),'dataType':'json' }).then(function(response) {
+                var html = '';
+                jQuery.each(response, function(key, value) {
+                    console.log(key, currentValue, $.inArray(key, currentValue));
+                    var selected = '';
+                    if(typeof currentValue == 'object' && $.inArray(key, currentValue) != -1) {
+                        selected = 'selected="selected"';
+                    }
+                    if(typeof currentValue == 'string' && key == currentValue) {
+                        selected = 'selected="selected"';
+                    }
+
+                    html += '<option value="' + key + '" ' + selected + '>' + value + '</option>';
+                });
+                jQuery(targetSelect).parent().show();
+            });
+        }
+
+    }
+};
