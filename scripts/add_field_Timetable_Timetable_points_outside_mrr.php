@@ -48,7 +48,7 @@ if ($module) {
             $block->addField($field);
 
             //Для создания поля-списка раскомментировать эти две строки и прописать значения на английском. Переводить на русский через файлы-переводов.
-            $pickListValues = array('1', '2');
+            $pickListValues = array('No', '1', '2');
             $field->setPicklistValues($pickListValues);
 
             echo "Поле успешно добавлено.";
