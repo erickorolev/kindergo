@@ -69,6 +69,14 @@ function vtws_internal_setrelation($elementId, $moduleName, $withTheseIds, $type
 		if (!in_array($withModuleName, $types['types'])) {
 			continue;
 		}
+		if ($moduleName === 'Documents' && $withModuleName === 'Contacts') {
+		    $focus = CRMEntity::getInstance($withModuleName);
+		    $moduleName = $withModuleName;
+		    $tmpElementId = $elementId;
+		    $elementId = $withElementId;
+		    $withElementId = $tmpElementId;
+		    $withModuleName = 'Documents';
+        }
 		relateEntities($focus, $moduleName, $elementId, $withModuleName, $withElementId);
 	}
 }

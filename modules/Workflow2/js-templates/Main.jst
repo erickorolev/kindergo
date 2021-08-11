@@ -1,0 +1,596 @@
+/** DetailView **/
+
+"use strict";
+jQuery('.listViewActionsDiv .addButton[onclick*="runListViewWorkflow"]').each(function(index, ele) {
+    var html = jQuery('strong', this).html();
+
+    jQuery(this).html('<strong>' + html + '</strong>');
+    var onclick = jQuery(this).attr('onclick');
+
+    if(onclick.indexOf('//#') != -1) {
+        var parts = onclick.split('//');
+        parts[1] = parts[1].replace(';','');
+
+        jQuery(this).css('backgroundColor', parts[1]);
+    }
+});
+//hh
+var WorkflowRecordMessages = [];
+function startWorkflowById(workflow, crmid, async) {
+    if(typeof async == "undefined") {
+        async = true;
+    }
+    if(async != true) {
+        async = false;
+    }
+
+    if(typeof crmid == "undefined") {
+        crmid = "0";
+    }
+    if(typeof workflow == "undefined") {
+        return false;
+    }
+
+    var html = "<div id='workflow_executer' style='width:150px;height:150px;background-image:url(modules/Workflow2/icons/modal_white.png);border:1px solid #777777; box-shadow:0 0 2px #ccc; position:absolute;top:100px;right:300px;text-align:center;'><br><br><img src='modules/Workflow2/icons/sending.gif'><br><br><strong>Executing Workflow ...</strong></div>";
+    jQuery("body").append(html);
+    jQuery.ajax("index.php", {
+        async: async,
+        cache: false,
+        data:{
+            "module" : "Workflow2",
+            "action" : "Workflow2Ajax",
+            "file"   : "ajaxExecuteWorkflow",
+
+            "crmid" : crmid,
+            "workflow" : workflow
+        },
+        type: 'POST',
+        dataType: 'json'
+    }).always(function( response ) {
+        jQuery("#workflow_executer").remove();
+
+        if(response.result == "startfields") {
+            var html = "<div style='position:absolute;background-color:#fff;border:3px solid #5890c9;box-shadow:0px 0px 5px #777;border-radius:3px;top:-100px;left:0px;width:200px;padding:5px;'><form method='POST' onsubmit='submitStartfields(" + '"' + response.workflow + '","' + crmid + '","' + module + '"' + ");return false;' id='wf_startfields'>";
+            html += "<img src='modules/Workflow2/icons/cross-button.png' style='position:absolute;right:-6px;top:-6px;cursor:pointer;' onclick='jQuery(\"#startfieldsContainer\").fadeOut(\"fast\");'>";
+            html += "<div class='small'>These Workflow requests some values.</div>";
+
+            jQuery.each(response.fields, function(index, value) {
+                var inputField = "";
+                var fieldName = '' + value.name + '';
+
+                switch(value.type) {
+                    case "TEXT":
+
+                        inputField = '<input type="text" style="width:180px;" name="' + fieldName + '" value="' + value.default + '">';
+                        break;
+                    case "CHECKBOX":
+                        if(value.default === null) {
+                            value.default = "off";
+                        }
+                        inputField = '<input type="checkbox" name="' + fieldName + '" ' + (value["default"].toLowerCase()=="on"?"checked='checked'":"") + ' value="on">';
+                        break;
+                    case "SELECT":
+                        var splitValues = value["default"].split("\n");
+
+                        inputField = '<select style="width:183px;" name="' + fieldName + '">';
+                        jQuery.each(splitValues, function(index, value) {
+                            var fieldValue = value;
+                            var fieldKey = value;
+
+                            if(value.indexOf("#~#") != -1) {
+                                var parts = value.split("#~#");
+                                fieldValue = parts[0];
+                                fieldKey = parts[1];
+                            }
+
+                            inputField += "<option value='" + fieldKey + "'>" + fieldValue + "</option>";
+                        });
+                        inputField += '</select>';
+
+                        break;
+                    case "DATE":
+                        inputField = '<input style="width:130px;" type="text" name="' + fieldName + '" id="'+fieldName+'" value="' + value["default"] + '">';
+                        inputField += '<img src="modules/Workflow2/icons/calenderButton.png" style="margin-bottom:-8px;cursor:pointer;" id="jscal_trigger_' + fieldName + '">';
+                        inputField += '<script type="text/javascript">Calendar.setup ({inputField : "' + fieldName + '", ifFormat : "%Y-%m-%d", button:"jscal_trigger_' + fieldName + '",showsTime : false, singleClick : true, step : 1});</script>';
+
+                        break;
+                }
+
+                html += "<label><div style='overflow:hidden;min-height:26px;padding:2px 0;'><div style='" + (value.type=="CHECKBOX"?"float:left;":"") + "'><strong>"+ value.label + "</strong></div><div style='text-align:right;'>" + inputField + "</div></div></label>";
+            });
+            html += "<input type='submit' name='submitStartField' value='Execute Workflow' class='button small edit'>";
+            html += "</form></div>";
+
+            jQuery("#startfieldsContainer").hide();
+            jQuery("#startfieldsContainer").html(html);
+            jQuery("#startfieldsContainer").fadeIn("fast");
+        }
+    });
+
+}
+
+function reloadWFDWidget() {
+    var widgetContainer = jQuery('div.widgetContainer#' + jQuery("#module").val() + '_sideBar_Workflows');
+    var key = widgetContainer.attr('id');
+    FlexUtils('Workflow2').cacheSet(key, 0);
+
+    widgetContainer.html('');
+
+    // Vtiger_Index_Js.loadWidgets(widgetContainer);
+}
+
+window.continueWorkflow = function (execid, crmid, block_id) {
+    var Execution = new WorkflowExecution();
+    Execution.setContinue(execid, block_id);
+    Execution.execute();
+
+}
+
+window.stopWorkflow = function(execid, crmid, taskid, direct) {
+    if(typeof direct == 'undefined' || direct != true) {
+        if(!confirm("stop Workflow?"))
+            return;
+    }
+
+    jQuery.post("index.php?module=Workflow2&action=QueueStop", {
+            "crmid" : crmid,
+            "execID" : execid,
+            "taskID" : taskid
+        },
+        function(response) {
+            reloadWFDWidget();
+        }
+    );
+
+    return false;
+}
+
+/** ListView **/
+function executeWorkflow(button, module, selection) {
+    var selectedIDs = "";
+
+    if(typeof selection == "undefined") {
+        selectedIDs = jQuery('#allselectedboxes').val().split(";");
+        selectedIDs = selectedIDs.join(";");
+    } else {
+        selectedIDs = selection.join(";");
+    }
+
+    if (jQuery("#Wf2ListViewPOPUP").length == 0)
+    {
+        var div = document.createElement('div');
+        div.setAttribute('id','Wf2ListViewPOPUP');
+        div.setAttribute('style','display:none;width:350px; position:absolute;');
+        div.innerHTML = 'Loading';
+        document.body.appendChild(div);
+
+        //      for IE7 compatiblity we can not use setAttribute('style', <val>) as well as setAttribute('class', <val>)
+        newdiv = document.getElementById('Wf2ListViewPOPUP');
+        newdiv.style.display = 'none';
+        newdiv.style.width = '400px';
+        newdiv.style.position = 'absolute';
+    }
+
+    jQuery('#status').show();
+
+    currentListViewPopUpContent = "#wf2popup_wf_execute";
+
+    jQuery.post("index.php", {
+        "module" : "Workflow2",
+        "action" : "Workflow2Ajax",
+        "file"   : "ListViewPopup",
+
+        "return_module" : module,
+        "record_ids"    : selectedIDs
+    }, function(response) {
+        jQuery("#Wf2ListViewPOPUP").html(response);
+
+        fnvshobj(button,'Wf2ListViewPOPUP');
+
+        var EMAILListview = document.getElementById('Wf2ListViewPOPUP');
+        var EMAILListviewHandle = document.getElementById('Workflow2ViewDivHandle');
+        Drag.init(EMAILListviewHandle,EMAILListview);
+
+        jQuery('#status').hide();
+
+    });
+
+}
+
+var currentListViewPopUpContent = "#wf2popup_wf_execute";
+function showWf2PopupContent(id) {
+    jQuery(currentListViewPopUpContent + "_TAB").addClass("deactiveWf2Tab");
+    jQuery(id + "_TAB").removeClass("deactiveWf2Tab");
+    jQuery(currentListViewPopUpContent).hide();
+    jQuery(id).show();
+    currentListViewPopUpContent= id;
+
+    if(id == "wf2popup_wf_importer") {
+        jQuery("#execute_mode").val("execute");
+    } else {
+        jQuery("#execute_mode").val("import");
+    }
+}
+
+function executeLVWorkflow() {
+    if(jQuery("#execute_mode").val() == "import") {
+        return true;
+    }
+
+    var record_ids = jQuery("#WFLV_record_ids").val();
+    var return_module = jQuery("#WFLV_return_module").val();
+    var workflow = jQuery("#exec_this_workflow").val();
+    var parallel = jQuery("#exec_workflow_parallel").attr("checked")=="checked"?1:0;
+
+    var ids = record_ids.split("#~#");
+
+    jQuery("#executionProgress_Value").html("0 / " + ids.length);
+    jQuery("#executionProgress").show();
+
+    jQuery.ajaxSetup({async:false});
+    var counter = 0;
+
+    jQuery.each(ids, function(index, value) {
+        jQuery.post("index.php?module=Workflow2&action=Workflow2Ajax&file=ajaxExecuteWorkflow", {
+                "crmid" : value,
+                "return_module" : return_module,
+                "workflow" : workflow,
+                "allow_parallel" : parallel
+            }
+        );
+        counter = counter + 1;
+        jQuery("#executionProgress_Value").html(counter + " / " + ids.length);
+    });
+    jQuery.ajaxSetup({async:true});
+
+    jQuery("#executionProgress_Value").html("100%");
+
+    if(currentListViewPopUpContent == "#wf2popup_wf_execute") {
+        return false;
+    }
+}
+var ENABLEredirectionOrReloadAfterFinish = true;
+var WorkflowMetaData = {};
+var WithinRecordLessWF = false;
+
+function runListViewWorkflow(workflowId, couldStartWithoutRecord, collection_process) {
+    if(typeof couldStartWithoutRecord === 'undefined' && typeof collection_process === 'undefined') {
+
+        if(typeof WorkflowMetaData[workflowId] === 'undefined') {
+            FlexAjax('Workflow2').postAction('WorkflowInfo', {workflow_id: workflowId}, 'json').then(function (workflowInfo) {
+                WorkflowMetaData[workflowId] = workflowInfo;
+
+                runListViewWorkflow(workflowId);
+            });
+            return false;
+        } else {
+            couldStartWithoutRecord = WorkflowMetaData[workflowId].withoutrecord;
+            collection_process = WorkflowMetaData[workflowId].collection_process;
+        }
+    }
+
+    if(WithinRecordLessWF === true)  {
+        couldStartWithoutRecord = false;
+    }
+    if(typeof couldStartWithoutRecord === 'undefined') {
+        couldStartWithoutRecord = false;
+    }
+    if(typeof collection_process === 'undefined') {
+        collection_process = false;
+    }
+
+    var processSettings = {};
+    if(typeof WorkflowDesignerProcessSettings == 'undefined' || typeof WorkflowDesignerProcessSettings[workflowId] == 'undefined') {
+        processSettings = {'withoutrecord': couldStartWithoutRecord, 'collection_process' : collection_process};
+    } else {
+        processSettings = WorkflowDesignerProcessSettings[workflowId];
+    }
+
+    var listInstance = window.app.controller();
+    var params = listInstance.getListSelectAllParams(false);
+
+    if(params !== false) {
+        var selectedIds = params.selected_ids;
+    } else {
+        var selectedIds = [0];
+    }
+
+    RedooUtils('Workflow2').blockUI({
+        title: 'Executing ... ',
+        message: '<p style="margin:20px 0px;font-size:14px;"><strong style="text-transform:uppercase;">' + FLEXLANG('Please wait', 'Workflow2') + ' ...&nbsp;&nbsp;&nbsp;&nbsp;</strong><span id="workflowDesignerDone">0</span> of <span id="workflowDesignerTotal">' + (selectedIds!='all'?selectedIds.length:'?') + '</span> done</p><div style="margin: 10px 10px 10px 10px;" id="executionProgress" class="progress"><div class="progress-bar progress-bar-success progress-bar-striped" style="width: 0;"></div></div>',
+        theme: false,
+        css: {
+            'backgroundColor':'#2d3e49',
+            'color': '#ffffff',
+            'border': '1px solid #fff'
+        },
+        onBlock: function() {
+            var counter = -1;
+
+            if(selectedIds == 'all') {
+                jQuery.ajaxSetup({async:false});
+                var parameter = listInstance.getDefaultParams();
+                parameter.module = 'Workflow2';
+                parameter.view = undefined;
+                parameter.action = 'GetSelectedIds';
+
+                jQuery.post('index.php', parameter, function(response) {
+                    selectedIds =  response.ids;
+                }, 'json');
+
+                jQuery('#workflowDesignerTotal').html(selectedIds.length);
+                jQuery.ajaxSetup({async:true});
+            }
+
+            var totalIds = selectedIds.length;
+
+            if(selectedIds.length > 1) {
+                ENABLEredirectionOrReloadAfterFinish = false;
+            }
+
+            var couldStartWithoutRecord = false;
+
+            if(selectedIds.length == 0 && processSettings.withoutrecord == false) {
+                alert('Please choose a record to execute');
+                RedooUtils('Workflow2').unblockUI();
+                return;
+            }
+            /*
+            if(selectedIds.length == 0) {
+                couldStartWithoutRecord = true;
+            }
+*/
+            if(processSettings.collection_process == "1") {
+                var workflow = new Workflow();
+                ENABLEredirectionOrReloadAfterFinish = true;
+                workflow.setRequestedData({ 'recordids':selectedIds.join(',') }, 'collection_recordids');
+
+                var crmid = selectedIds.shift();
+
+                workflow.execute(workflowId, crmid, function(response) {
+                    RedooUtils('Workflow2').unblockUI();
+                    if(typeof response.redirection == "undefined") {
+                        window.location.reload();
+                    }
+
+                    return true;
+                });
+                return;
+            }
+            if(processSettings.withoutrecord == "1" && selectedIds.length == 1 && selectedIds[0] == 0) {
+                var workflow = new Workflow();
+                ENABLEredirectionOrReloadAfterFinish = true;
+                var crmid = 0;
+
+                WithinRecordLessWF = true;
+                workflow.execute(workflowId, crmid, function(response) {
+                    RedooUtils('Workflow2').unblockUI();
+                    if(typeof response.redirection == "undefined") {
+                        window.location.reload();
+                    }
+
+                    return true;
+                }, true);
+                return;
+            }
+
+            function _executeCallback() {
+                counter = counter + 1;
+                jQuery('#workflowDesignerDone').html(counter);
+                var crmid = selectedIds.shift();
+
+                if(couldStartWithoutRecord === true) {
+                    crmid = 0;
+                    couldStartWithoutRecord = false;
+                }
+
+                var progress = Math.round(((totalIds - selectedIds.length) / totalIds) * 100);
+                jQuery('#executionProgress .progress-bar-success').css('width', progress + '%');
+
+                if(typeof crmid !== 'undefined') {
+                    var workflow = new Workflow();
+                    workflow.setBackgroundMode(true);
+                    workflow.execute(workflowId, crmid, _executeCallback);
+                } else {
+                    RedooUtils('Workflow2').unblockUI();
+                    window.location.reload();
+                }
+            }
+
+            _executeCallback();
+        }
+    });
+
+}
+function runListViewSidebarWorkflow() {
+    runListViewWorkflow(jQuery("#workflow2_workflowid").val(), jQuery("#workflow2_workflowid option:selected").data('withoutrecord') == '1');
+}
+function runSidebarWorkflow(crmid) {
+    if(jQuery("#workflow2_workflowid").val() == "") {
+        return;
+    }
+
+    var workflow = new Workflow();
+    workflow.execute(jQuery("#workflow2_workflowid").val(), crmid);
+}
+
+
+function WorkflowWidgetLoaded() {
+    jQuery('.WFdivider', '#WorkflowDesignerWidgetContainer').each(function(index, element) {
+        if(jQuery(element).next().length == 0 || jQuery(element).next().hasClass('WFdivider')) {
+            jQuery(element).hide();
+        }
+    });
+}
+var WFDvisibleMessages = {};
+
+
+var WorkflowHandler = {
+    startImport : function(moduleName) {
+        RedooAjax('Workflow2').postView('ImportModal', {target_module:moduleName}).then(function(response) {
+            RedooUtils('Workflow2').hideModalBox();
+            RedooUtils('Workflow2').showContentOverlay(response).then(function() {
+                RedooUtils('Workflow2').loadScript('modules/Workflow2/js/Importer.js').then(function() {
+                    var Import = new Importer();
+                    Import.init();
+                });
+            });
+        });
+
+        /*
+        jQuery.post('index.php?module=Workflow2&view=ImportStep1', { source_module: source_module, currentUrl: window.location.href },  function(html) {
+            app.showModalWindow(html, function(data) {
+                jQuery('#modalSubmitButton').removeAttr('disabled');
+            });
+        });
+        */
+    }
+};
+window.WorkflowHandler = WorkflowHandler;
+
+function showEntityData(crmid) {
+    jQuery.post('index.php?module=Workflow2&view=EntityData', { crmid:crmid },  function(html) {
+        app.showModalWindow(html, function(data) {
+            jQuery('.EntityDataDelete').on('click', function(e) {
+                var dataid = jQuery(e.currentTarget).data('id');
+
+                jQuery.post('index.php', {
+                    'module':'Workflow2',
+                    'action':'EntityDataDelete',
+                    'dataid':dataid
+                }, function() {
+                    showEntityData(crmid);
+                });
+            });
+        });
+    });
+}
+var workflowObj;
+window.closeForceNotification = function(messageId) {
+    jQuery.post('index.php?module=Workflow2&action=MessageClose', { messageId:messageId, force: 1 });
+}
+var UserQueue = {
+    run: function(exec_id, block_id) {
+        var Execution = new WorkflowExecution();
+
+        Execution.setContinue(exec_id, block_id);
+
+        Execution.execute();
+    }
+};
+
+var WorkflowPermissions = {
+    returnCounter:0,
+    submit: function(execID, confID, hash, result) {
+        if(jQuery('#row_' + confID).data('already') == '1') {
+            if(!confirm('Permission already set. Set again?')) {
+                return;
+            }
+        }
+
+        var execution = new WorkflowExecution();
+        execution.setCallback(function(response) {  });
+
+        execution.setContinue(execID, 0);
+        //execution.enableRedirection(false);
+        execution.submitRequestFields('authPermission', [{name:'permission', value: result}, {name:'confid', value: confID}, {name:'hash', value: hash}], {}, jQuery('.confirmation_container'));
+
+        var row = jQuery('#row_' + confID);
+        jQuery('.btn.decision', row).removeClass('pressed').addClass('unpressed');
+        jQuery('.btn.decision_' + result, row).addClass('pressed').removeClass('unpressed');
+
+        return false;
+    },
+    submitAll:function(blockId, result) {
+        /*if(jQuery('table.block' + blockId + ' [data-already="1"]').length > 0) {
+         if(!confirm('This will overwrite every already defined value! Continue?')) {
+         return;
+         }
+         }*/
+
+        jQuery('table.block' + blockId + ' .permissionRow input.selectRows:checked').each(function(index, value) {
+            var row = jQuery(this).closest('.permissionRow');
+
+            var confId = jQuery(row).data('id');
+            var execID = jQuery(row).data('execid');
+            var hash = jQuery(row).data('hash');
+
+            WorkflowPermissions.returnCounter++;
+            var execution = new WorkflowExecution();
+            execution.setCallback(function(response) { WorkflowPermissions.returnCounter--; if(WorkflowPermissions.returnCounter == 0) window.location.reload(); });
+
+            execution.setContinue(execID, 0);
+            execution.enableRedirection(false);
+            execution.submitRequestFields('authPermission', [{name:'permission', value: result}, {name:'confid', value: confId}, {name:'hash', value: hash}], {}, jQuery('.confirmation_container'));
+        });
+
+        return false;
+    }
+};
+window.WorkflowPermissions = WorkflowPermissions;
+
+var WorkflowFrontendTypes = {
+    getWorkflows:function(type, module, crmid) {
+        if(typeof type === 'undefined') {
+            console.error('You do not define a FrontendType. Please check!');
+            return;
+        }
+        if(typeof module === 'undefined') {
+            console.error('You do not define a Module of FrontendTypes. Please check!');
+            return;
+        }
+
+        if(typeof crmid === 'undefined' && typeof WFDFrontendConfig !== 'undefined' && typeof WFDFrontendConfig[type] !== 'undefined' && typeof WFDFrontendConfig[type][module] !== 'undefined') {
+            var aDeferred = jQuery.Deferred();
+
+            var result = [];
+            jQuery.each(WFDFrontendConfig[type][module], function(index, value) {
+                var tmp = value.config;
+
+                tmp.workflow_id = value.workflowid;
+                tmp.module = module;
+                tmp.label = value.label;
+                tmp.color = value.color;
+                tmp.textcolor = value.textcolor;
+                result.push(tmp);
+            });
+
+            aDeferred.resolveWith({}, [result]);
+
+            return aDeferred.promise();
+        }
+
+        return FlexAjax('Workflow2').postAction('FrontendLinks', {
+            'type'      :   type,
+            'target_module'    :   module,
+            'target_crmid'     :   crmid
+        }, 'json');
+
+    },
+    trigggerWorkflow:function(type, workflowid, crmid, envVars) {
+        var dfd = jQuery.Deferred();
+
+        var execution = new WorkflowExecution();
+        execution.setCallback(function(response) {
+            var workflowFrontendActions = new Workflow();
+            workflowFrontendActions.checkFrontendActions('init', crmid);
+
+            dfd.resolve();
+            return false;
+        });
+
+        execution.init(crmid);
+        execution.setWorkflowById(workflowid);
+
+        if(typeof envVars === 'undefined') {
+            var envVars = {};
+        }
+
+        execution.setFrontendType(type);
+        execution.setEnvironment(envVars);
+        execution.execute();
+
+        return dfd.promise();
+    }
+};
+window.WorkflowFrontendTypes = WorkflowFrontendTypes;

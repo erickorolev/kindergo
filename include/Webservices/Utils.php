@@ -1404,5 +1404,16 @@ function vtws_getWSID($id) {
 	}
 }
 
+function vtws_getEntityId($entityName) {
+    global $adb;
+    $wsrs=$adb->pquery('select id from vtiger_ws_entity where name=?', array($entityName));
+    if ($wsrs && $adb->num_rows($wsrs)==1) {
+        $wsid = $adb->query_result($wsrs, 0, 0);
+    } else {
+        $wsid = 0;
+    }
+    return $wsid;
+}
+
 
 ?>

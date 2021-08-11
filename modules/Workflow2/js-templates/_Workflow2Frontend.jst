@@ -1,0 +1,175 @@
+var WorkflowRunning = false;
+
+var Workflow2Frontend = {
+    viewMode:false,
+    runCampaignRealationWF:function(workflow_id) {
+        runListViewWorkflow(workflow_id);
+    },
+    showWorkflowPopup:function(MainModule, RecordIds, MainView) {
+
+        //var MainView = RedooUtils('Workflow2').getViewMode(parentEle);
+//        var RecordIds = RedooUtils('Workflow2').getRecordIds(parentEle);
+
+        RedooAjax('Workflow2').postView('WorkflowPopup', {
+            'target_module': MainModule,
+            'target_view': MainView,
+            'target_record': RecordIds
+        }).then(function(response) {
+            RedooUtils('Workflow2').showModalBox(response).then(function(data) {
+                jQuery('[type="submit"]', data).on('click', function(e) {
+                    if(jQuery('#workflow2_workflowid').val() == '' || jQuery('#workflow2_workflowid').val() == null) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+
+                    RedooUtils('Workflow2').hideModalBox();
+
+                    var crmid = jQuery('.WorkflowPopupCRMID', data).val();
+                    var workflow = new Workflow();
+                    workflow.execute(jQuery('#workflow2_workflowid').val() , crmid);
+                });
+            });
+        });
+    },
+    TopbuttonHandler:function(parentEle) {
+        var MainModule = RedooUtils('Workflow2').getMainModule(parentEle);
+        var CurrentViewMode = FlexUtils('Workflow2').getViewMode();
+
+        if (
+            typeof WFDFrontendConfig !== 'undefined' &&
+            typeof WFDFrontendConfig['morebtn'] !== 'undefined' &&
+            typeof WFDFrontendConfig['morebtn'][MainModule] !== 'undefined'
+        ) {
+            if(jQuery('.detailViewButtoncontainer ul.dropdown-menu').hasClass('WFDAddHandler') === false) {
+                var html = '';
+                jQuery.each(WFDFrontendConfig['morebtn'][MainModule], function(index, value) {
+                    var rand = Math.floor(Math.random() * 9999999) + 1000000;
+                    html += '<li data-id="' + value.workflowid + '" class="wfdButtonMoreBtn" style="' + (value.color != '' ? 'color:' + value.textcolor + ';background-color: ' + value.color + ';':'') + '"><a href="#" style="' + (value.color != '' ? 'color:' + value.textcolor + ';':'') + '">' + value.label + '</a></li>';
+                });
+                jQuery('.detailViewButtoncontainer ul.dropdown-menu').addClass('WFDAddHandler');
+                jQuery('.detailViewButtoncontainer ul.dropdown-menu').append(html);
+
+                jQuery('.wfdButtonMoreBtn a').on('click', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                jQuery('.wfdButtonMoreBtn').on('click', function() {
+                    var workflow = new Workflow();
+                    workflow.execute(jQuery(this).data('id'), jQuery('#recordId').val());
+                });
+            }
+        }
+
+        if (
+            CurrentViewMode == 'listview' &&
+            typeof WFDFrontendConfig !== 'undefined' &&
+            typeof WFDFrontendConfig['listviewbtn'] !== 'undefined' &&
+            typeof WFDFrontendConfig['listviewbtn'][MainModule] !== 'undefined'
+        ) {
+
+            if(jQuery('.detailViewButtoncontainer').hasClass('WFDAddHandler') === false) {
+                var html = '';
+                jQuery.each(WFDFrontendConfig['listviewbtn'][MainModule], function(index, value) {
+                    var rand = Math.floor(Math.random() * 9999999) + 1000000;
+
+                    if(value.color != '') {
+                        var cssStyle = 'color:' + value.textcolor + ';background-color: ' + value.color + ';background-image:none;';
+                    } else {
+                        var cssStyle = ''
+                    }
+
+                    html += '<button type="button" data-id="' + value.workflowid + '" class="btn btn-default wfdButtonTopbutton" style="' + cssStyle + '">' + value.label + '</button>';
+                });
+
+                jQuery('.detailViewButtoncontainer').addClass('WFDAddHandler');
+                jQuery('.listViewActionsContainer').append(html);
+
+                jQuery('.wfdButtonTopbutton').on('click', function(e) {
+                    e.preventDefault();
+                    var workflow = new Workflow();
+                    workflow.execute(jQuery(this).data('id'), 0);
+                });
+            }
+        }
+    },
+    RelatedListHandler:function(parentEle) {
+
+        if(typeof WFDFrontendConfig !== 'undefined' && typeof WFDFrontendConfig['relatedbtn'] !== 'undefined') {
+            var MainModule = Workflow2Frontend.getMainModule(parentEle);
+            if(typeof WFDFrontendConfig['relatedbtn'][MainModule] !== 'undefined') {
+                var btnHtml = '';
+                for(var index in WFDFrontendConfig['relatedbtn'][MainModule] ) {
+                    if (WFDFrontendConfig['relatedbtn'][MainModule].hasOwnProperty(index) && jQuery.isNumeric(index)) {
+                        var value = WFDFrontendConfig['relatedbtn'][MainModule][index];
+
+                        btnHtml += '<button type="button" class="btn CampaignRelationBtn" onclick="Workflow2Frontend.runCampaignRealationWF(' + value['workflowid'] +');" style="background-color:' + value['color'] +';">' + value['label'] +'</button>';
+                    }
+                }
+
+                var parent = jQuery(jQuery('div.relatedHeader .btn')[0]).closest('.btn-group').parent();
+                parent.append('<div class="btn-group">' + btnHtml + '</div>');
+            }
+        }
+
+
+    },
+    getMainModule:function (parentEle) {
+        var viewMode = Workflow2Frontend.getViewMode(parentEle);
+
+        if (viewMode == 'detailview' || viewMode == 'summaryview') {
+            return jQuery('#module', parentEle).val();
+        } else if (viewMode == 'editview' || viewMode == 'quickcreate') {
+            return jQuery('[name="module"]', parentEle).val();
+        } else if (viewMode == 'listview') {
+            return jQuery('#module', parentEle).val();
+        } else if (viewMode == 'relatedview') {
+            if (jQuery('[name="relatedModuleName"]', parentEle).length > 0) {
+                return jQuery('[name="relatedModuleName"]', parentEle).val();
+            }
+            if (jQuery('#module', parentEle).length > 0) {
+                return jQuery('#module', parentEle).val();
+            }
+        }
+        return '';
+    },
+    getViewMode: function(parentEle, obj) {
+        var viewEle = jQuery("#view", parentEle);
+
+        if(viewEle.length > 0 && viewEle[0].value == "List") {
+            Workflow2Frontend.viewMode = "listview";
+        }
+
+        if(jQuery(".detailview-table", parentEle).length > 0) {
+            Workflow2Frontend.viewMode = "detailview";
+        } else if(jQuery(".summary-table", parentEle).length > 0) {
+            Workflow2Frontend.viewMode = "summaryview";
+        } else if(jQuery(".recordEditView", parentEle).length > 0) {
+            if(jQuery('.quickCreateContent', parentEle).length == 0) {
+                Workflow2Frontend.viewMode = "editview";
+            } else {
+                Workflow2Frontend.viewMode = "quickcreate";
+            }
+        }
+
+        if(jQuery('.relatedContents', parentEle).length > 0) {
+            Workflow2Frontend.viewMode = "relatedview";
+
+            if(jQuery('td[data-field-type]', parentEle).length > 0) {
+                Workflow2Frontend.popUp = false;
+            } else {
+                Workflow2Frontend.popUp = true;
+            }
+        }
+
+        if(Workflow2Frontend.viewMode === false) {
+            if(jQuery('#view', parentEle).length > 0) {
+                if(jQuery('#view', parentEle).val() == 'Detail') {
+                    Workflow2Frontend.viewMode = 'detailview';
+                }
+            }
+        }
+
+        return Workflow2Frontend.viewMode;
+    }
+};

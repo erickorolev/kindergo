@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<core input="true" styleclass="" version="702">
+    <type>MergeInventoryLoader</type>
+    <files>
+        <file>modules\Workflow2\extends\inventoryloader\_MergeItems.inc.php</file>
+    </files>
+</core>

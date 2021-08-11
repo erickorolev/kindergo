@@ -1,0 +1,536 @@
+jQuery('#WorkflowDesignerErrorLoaded').hide();
+var WFUserIsAdmin;
+window.Workflow = function () {
+    this.crmid = 0;
+    this._allowParallel = 0;
+    this._workflowid = null;
+    this._workflowTrigger = null;
+
+    this._currentExecId = null;
+
+    this.ExecutionCallback = null;
+
+    this._requestValues = {};
+    this._requestValuesKey = null;
+    this._backgroundMode = false;
+    this._extraEnvironment = {};
+    this._ListViewMode = false;
+
+    /**
+     *
+     * @param workflow WorkflowID or Trigger
+     * @param crmid Record to use
+     */
+    this.execute = function(workflow, crmid, callback, ignoreViewMode) {
+        if(typeof ignoreViewMode === 'undefined') ignoreViewMode = false;
+
+        this.crmid = crmid;
+
+        if(FlexUtils('Workflow2').getViewMode() == 'listview' && crmid == 0 && ignoreViewMode === false) {
+            runListViewWorkflow(workflow);
+        } else {
+            if (jQuery.isNumeric(workflow)) {
+                this._executeById(workflow, callback);
+            } else {
+                this._executeByTrigger(workflow, callback);
+            }
+        }
+    };
+
+    this.setListView = function(value) {
+        this._ListViewMode = (value == true);
+    };
+
+    this.checkFrontendActions = function(step, crmid) {
+        WorkflowRecordMessages = [];
+        if(typeof crmid == 'undefined') {
+            var crmid = 0;
+
+            var recordId;
+            if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'detailview' || Workflow2Frontend.getViewMode(jQuery('div#page')) == 'summaryview') {
+                recordId = $('#recordId', jQuery('div#page')).val();
+            } else if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'quickcreate') {
+                recordId = 0;
+            } else if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'editview') {
+                recordId = jQuery('[name="record"]').val();
+            } else if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'listview') {
+                recordId = 0;
+            } else if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'relatedview') {
+                recordId = 0;
+            } else if (Workflow2Frontend.getViewMode(jQuery('div#page')) == 'composemail') {
+                var ids = jQuery('[name="selected_ids"]').val();
+                recordId = jQuery.parseJSON(ids)[0];
+            } else {
+                recordId = 0;
+            }
+        } else {
+            recordId = Number(crmid);
+        }
+
+        if(recordId == 0 || typeof recordId == 'undefined') {
+            if( $('#recordId').length > 0) {
+                var recordId =  $('#recordId').val();
+            }
+        }
+
+        /*if(typeof recordId == "undefined" || recordId == 0) {
+            return;
+        }*/
+
+        if(typeof _META != 'undefined') {
+            var moduleName = _META.module;
+        } else {
+            var moduleName = RedooUtils('Workflow2').getMainModule('div#page');
+        }
+
+        RedooAjax('Workflow2').postAction('CheckFrontendActions', {'crmid':recordId, 'step':step, src_module: moduleName}, 'json').then(jQuery.proxy(function(response) {
+            if(response.length == 0) return;
+
+            if(typeof response.buttons != 'undefined' && response.buttons.length > 0) {
+                this.generateInlineButtons(response.buttons);
+            }
+
+            if(typeof response.detailviewtop != 'undefined' && response.detailviewtop.length > 0) {
+                this.generateDetailViewTopButtons(response.detailviewtop);
+            }
+
+            if(typeof response['btn-list'] == 'object') {
+                this.generateBtnTrigger(response['btn-list']);
+            }
+
+            if(jQuery('.wfdGeneralButton').length == 0) {
+                if(typeof _META != 'undefined') {
+                    var moduleName = _META.module;
+                } else {
+                    var moduleName = RedooUtils('Workflow2').getMainModule(parentEle);
+                }
+                var recordId = jQuery('[name="record_id"]').val();
+
+                if(response.show_general_button != false) {
+                    if(jQuery('.detailview-header-block').length > 0) {
+                        var TopButton = '<button class="btn btn-default wfdGeneralButton" data-view="detailview" data-module="' + moduleName + '" data-crmid="' + recordId + '" style="margin-right:5px;font-weight:bold;"><i class="fa fa-location-arrow"></i> ' + response.labels.start_process + '</button>';
+                        jQuery('.detailViewButtoncontainer .btn-toolbar .btn-group:first-of-type').prepend('' + TopButton + '');
+                    } else {
+                        var TopButton = '<button class="btn btn-default wfdGeneralButton module-buttons" data-view="detailview" data-module="' + moduleName + '" data-crmid="' + recordId + '" style="font-weight:bold;"><i class="fa fa-location-arrow"></i> ' + response.labels.start_process + '</button>';
+                        jQuery('#appnav .nav ').prepend('<li style="padding-right:20px;">' + TopButton + '</li>');
+                    }
+
+                    /*if (jQuery('.WFDetailViewGroupTop').length > 0) {
+                        jQuery('.WFDetailViewGroupTop').prepend(TopButton);
+                    } else {
+                        jQuery('.detailViewButtoncontainer .btn-toolbar ').prepend('<div class="btn-group WFDetailViewGroupTop">' + TopButton + '</div>');
+                    }*/
+
+                    jQuery('.wfdGeneralButton').on('click', function (e) {
+                        var module = jQuery(e.currentTarget).data('module');
+                        var crmid = jQuery(e.currentTarget).data('crmid');
+                        var view = jQuery(e.currentTarget).data('view');
+
+                        Workflow2Frontend.showWorkflowPopup(module, crmid, view);
+                    });
+                }
+            }
+
+
+            WFUserIsAdmin = response.is_admin == true ? true : false;
+
+            jQuery.each(response.actions, function(index, value) {
+
+                switch(value.type) {
+                    case 'redirect':
+                        if(value.configuration.url == '_internal_reload') {
+                            window.location.reload();
+                            return false;
+                        }
+                        if(value.configuration.target == "same") {
+                            window.location.href = value.configuration.url;
+                            return false;
+                        } else {
+                            window.open(value.configuration.url);
+                            return;
+                        }
+
+                        break;
+                    case 'confirmation':
+                        if(jQuery('.confirmation_container').length == 0) {
+                            var html = '<div class="confirmation_container row block" style="background-color:#ffffff;padding-top:10px;margin-top:10px;"></div>';
+                            jQuery('div.details').before(html);
+                        }
+
+                        var config = value.configuration;
+                        var bgColor = config.backgroundcolor;
+                        //if(bgColor == '') {
+                            bgColor = '#ffffff';
+                        //}
+                        /*
+                        if(config.border != '') {
+                            var borderCSS = 'border:2px solid ' + config.border + ';border-top:0;';
+                        } else {
+                            var borderCSS = '';
+                        }*/
+                        var borderCSS = '';
+                        var html = '<div class="row" style="line-height:24px;' + borderCSS +'background-color:' + bgColor + ';">';
+                        html += '<div style="font-weight:bold;margin-bottom:10px;line-height:24px;" class="col-lg-6">' + config.infomessage + ' <div style="font-size:10px;color:#5e5e55;line-height:10px;">' + config.text_eingestellt +': ' + config.first_name + ' ' + config.last_name + ' / ' + config.timestamp +  '</div></div>';
+                        html += '<div style="font-weight:bold;margin-bottom:10px;line-height:34px;" class="col-lg-6">';
+                        if(config.buttons.btn_accept != '') {
+                            html += '<a onclick="return WorkflowPermissions.submit(\'' + config.execid +'##' + config.blockid + '\', \'' + config.conf_id + '\', \''+ config.hash1 + ' \', \'ok\');" class="btn btn-success decision decision_ok" style="margin-right:5px;min-width:100px;" href="index.php?module=Workflow2&view=List&aid=' + config.conf_id + '&a=ok&h=' + config.hash1 + '">' + config.buttons.btn_accept + '</a>';
+                        }
+                        if(value.configuration.buttons.btn_rework != '') {
+                            html += '<a onclick="return WorkflowPermissions.submit(\'' + config.execid +'##' + config.blockid + '\', \'' + config.conf_id + '\', \''+ config.hash2 + ' \', \'rework\');" class="btn btn-warning decision decision_rework" style="margin-right:5px;min-width:100px;"  href="index.php?module=Workflow2&view=List&aid=' + config.conf_id + '&a=rework&h=' + config.hash1 + '">' + config.buttons.btn_rework + '</a>';
+                        }
+                        if(value.configuration.buttons.btn_decline != '') {
+                            html += '<a onclick="return WorkflowPermissions.submit(\'' + config.execid +'##' + config.blockid + '\', \'' + config.conf_id + '\', \''+ config.hash3 + ' \', \'decline\');" class="btn btn-danger decision decision_decline" style="margin-right:5px;min-width:100px;"  href="index.php?module=Workflow2&view=List&aid=' + config.conf_id + '&a=decline&h=' + config.hash1 + '">' + config.buttons.btn_decline + '</a>';
+                        }
+
+
+                        jQuery('.confirmation_container').append(html);
+                        jQuery('.confirmation_container').slideDown();
+                        break;
+                    case 'requestValues':
+                        continueWorkflow(value.configuration.execid, value.configuration.crmid, value.configuration.blockid);
+                        return false;
+                        break;
+                    case 'message':
+                        WorkflowRecordMessages.push(value.configuration);
+                        break;
+                }
+            });
+
+            this.parseMessages();
+        }, this));
+    };
+
+    this.generateBtnTrigger = function(buttons) {
+        jQuery('.wfdButtonHeaderbutton').remove();
+
+        if(typeof buttons.headerbtn != 'undefined') {
+            var html = '';
+            jQuery.each(buttons.headerbtn, $.proxy(function(index, value) {
+                var rand = Math.floor(Math.random() * 9999999) + 1000000;
+                if(value.color != '') {
+                    var cssStyle = 'color:' + value.textcolor + ';background-color: ' + value.color + ';background-image:none;';
+                } else {
+                    var cssStyle = ''
+                }
+
+                html += '<li><button type="button" data-id="' + value.workflow_id + '" class="btn btn-default module-buttons wfdButtonHeaderbutton" style="' + cssStyle + '">' + value.label + '</button></li>';
+            }, this));
+
+            jQuery('#appnav .nav ').prepend('' + html + '');
+
+            jQuery('.wfdButtonHeaderbutton').on('click', function(e) {
+                var target = jQuery(e.currentTarget);
+                var workflowObj = new Workflow();
+
+                if(FlexUtils('Workflow2').getViewMode() == 'listview') {
+                    workflowObj.execute(target.data('id'), 0);
+                } else {
+                    workflowObj.execute(target.data('id'), RedooUtils('Workflow2').getRecordIds()[0]);
+                }
+            });
+        }
+    };
+
+    this.generateDetailViewTopButtons = function(buttons) {
+        jQuery('.WFDetailViewGroupTop').remove();
+        var html = '';
+            jQuery.each(buttons, function(index, value) {
+                var rand = Math.floor(Math.random() * 9999999) + 1000000;
+                if(value.color != '') {
+                    var cssStyle = 'color:' + value.textcolor + ';background-color: ' + value.color + ';background-image:none;';
+                } else {
+                    var cssStyle = ''
+                }
+
+                html += '<button data-id="' + value.workflow_id + '" class="btn btn-default wfdButtonTopbutton" style="' + cssStyle + '">' + value.label + '</button>';
+            });
+            jQuery('.detailViewButtoncontainer .btn-toolbar ').prepend('<div class="btn-group WFDetailViewGroupTop">' + html + '</div>');
+
+            jQuery('.wfdButtonTopbutton').on('click', function() {
+                var workflow = new Workflow();
+                workflow.execute(jQuery(this).data('id'), jQuery('#recordId').val());
+            });
+    };
+
+    this.generateInlineButtons = function(buttons) {
+        var final = {};
+
+        jQuery.each(buttons, jQuery.proxy(function (index, button) {
+            jQuery.each(button.config.field, jQuery.proxy(function (fieldIndex, fieldName) {
+                if (typeof final[fieldName] == 'undefined') {
+                    final[fieldName] = {
+                        config: button.config,
+                        buttons: []
+                    };
+                }
+
+                final[fieldName]['buttons'].push(button);
+            }, this));
+            //
+        }, this));
+
+        RedooCache('Workflow2').set('currentInlineButtons', final);
+        this.showInlineButtons();
+    };
+
+    this.showInlineButtons = function() {
+        jQuery('.WFInlineButton').remove();
+        jQuery('.WFDInlineDropdown').remove();
+
+        jQuery.each(RedooCache('Workflow2').get('currentInlineButtons', []), jQuery.proxy(function(fieldName, fields) {
+            var field = RedooUtils('Workflow2').getFieldElement(fieldName);
+
+            if(field != false) {
+                var dropdownHTML = '';
+                var buttonHTML = '';
+
+                    jQuery.each(fields['buttons'], jQuery.proxy(function (index, button) {
+                        if(typeof button.config.dropdown == 'undefined' || button.config.dropdown == '0') {
+                            // Buttons shouldn't arranged as DropDown
+
+                            var existingButtons = jQuery('.WFInlineButton[data-wfid="' + button.workflow_id + '"][data-frontendid="' + button.frontend_id + '"][data-fieldname="' + fieldName + '"]');
+                            if (existingButtons.length > 0) {
+                                jQuery(existingButtons).show().removeClass('tmpbtn');
+                            } else {
+                                buttonHTML = '<button type="button" data-wfid="' + button.workflow_id + '" data-frontendid="' + button.frontend_id + '" data-fieldname="' + fieldName + '" class="WFInlineButton btn pull-right" style="height:20px;line-height:16px;font-size:10px; padding:1px 10px; background-color:' + button.color + ';color:' + button.textcolor + ';margin-left:5px;">' + button.label + '</button>';
+                            }
+                        } else {
+
+                            // Buttons shouldn't arranged as DropDown
+                            //jQuery.each(fields['buttons'], jQuery.proxy(function (index, button) {
+                            dropdownHTML += '<li style=" background-color:' + button.color + ';color:' + button.textcolor + ';" class="dropdown-submenu"><a data-wfid="' + button.workflow_id + '" data-frontendid="' + button.frontend_id + '" data-fieldname="' + fieldName + '" href="#" style="color:' + button.textcolor + ';">' + button.label + '</a></li>';
+                            //}, this));
+                        }
+                    }, this));
+
+                jQuery('.WFDInlineDropdown', field).remove();
+
+                if(RedooUtils('Workflow2').getViewMode() == 'detailview') {
+                    if(dropdownHTML != '') {
+                        var finalHTML = '<div class="btn-group pull-right WFDInlineDropdown" style="margin-left:5px;"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"  style="height:20px;color:#666666;border:1px solid #666666;line-height:16px;font-size:10px; padding:1px 5px;"><span class="caret"></span></a><ul class="dropdown-menu">' + dropdownHTML + '</ul></div>';
+                        field.append(finalHTML);
+                    }
+
+                    if(buttonHTML != '') {
+                        field.append(buttonHTML);
+                    }
+                } else if(RedooUtils('Workflow2').getViewMode() == 'summaryview') {
+                    if(dropdownHTML != '') {
+                        var finalHTML = '<div class="btn-group pull-right WFDInlineDropdown" style="margin-left:5px;"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"  style="font-size:10px; padding:1px 5px;"><span class="caret"></span></a><ul class="dropdown-menu">' + dropdownHTML + '</ul></div>';
+                        field.append(finalHTML);
+                    }
+                    console.log(buttonHTML, field);
+                    if(buttonHTML != '') {
+                        field.append(buttonHTML);
+                    }
+                }
+
+            }
+        }, this));
+
+        jQuery('.WFInlineButton.tmpbtn').hide();
+
+        jQuery('.WFInlineButton, .WFDInlineDropdown li a').off('click').on('click', function(e) {
+            e.stopPropagation();
+
+            var wfId = jQuery(e.currentTarget).data('wfid');
+
+            var workflow = new Workflow();
+            workflow.execute(wfId, RedooUtils('Workflow2').getRecordIds()[0], function() {});
+        });
+
+        jQuery("div.WFDInlineDropdown").on('click', function(e) {
+            e.stopPropagation();
+
+            jQuery(".dropdown-toggle", e.currentTarget).dropdown('toggle');
+        });
+    };
+
+    this.setBackgroundMode = function(value) {
+        this._backgroundMode = value;
+    };
+    this.setRequestedData = function(values, relatedKey) {
+        this._requestValues = values;
+        this._requestValuesKey = relatedKey;
+    };
+
+    this.allowParallel = function(value) {
+        this._allowParallel = value?1:0;
+    };
+
+    this.addExtraEnvironment = function(key, value) {
+        this._extraEnvironment[key] = value;
+    };
+
+    this._executeByTrigger = function(triggerName, ExecutionCallback) {
+        var Execution = new WorkflowExecution();
+        Execution.init(this.crmid);
+        Execution.setRequestedData(this._requestValues, this._requestValuesKey);
+
+        if(this._allowParallel == 1) {
+            Execution.allowParallel();
+        }
+        Execution.enableRedirection(ENABLEredirectionOrReloadAfterFinish);
+
+
+        if(typeof ExecutionCallback != 'undefined') {
+            this._workflowTrigger = triggerName;
+        }
+
+        if(typeof ExecutionCallback != 'undefined') {
+            Execution.setCallback(ExecutionCallback);
+        }
+
+        jQuery.each(this._extraEnvironment, function(index, value) {
+            Execution.addEnvironment(index, value);
+        });
+
+        Execution.setBackgroundMode(this._backgroundMode);
+        Execution.setWorkflowByTrigger(triggerName);
+        Execution.execute();
+    };
+
+    this._executeById = function(workflow_id, ExecutionCallback) {
+        var Execution = new WorkflowExecution();
+        Execution.init(this.crmid);
+        Execution.setRequestedData(this._requestValues, this._requestValuesKey);
+
+        if(this._allowParallel == 1) {
+            Execution.allowParallel();
+        }
+        Execution.enableRedirection(ENABLEredirectionOrReloadAfterFinish);
+
+
+        if(typeof ExecutionCallback != 'undefined') {
+            this._workflowid = workflow_id;
+        }
+
+        if(typeof ExecutionCallback != 'undefined') {
+            Execution.setCallback(ExecutionCallback);
+        }
+
+        jQuery.each(this._extraEnvironment, function(index, value) {
+            Execution.addEnvironment(index, value);
+        });
+
+        Execution.setListViewMode(this._ListViewMode);
+        Execution.setBackgroundMode(this._backgroundMode);
+        Execution.setWorkflowById(workflow_id);
+        Execution.execute();
+
+    }; /** ExecuteById **/
+
+    this._submitStartfields = function(fields, urlStr) {
+        app.hideModalWindow();
+        RedooUtils('Workflow2').blockUI({
+            'message' : 'Workflow is executing',
+            // disable if you want key and mouse events to be enable for content that is blocked (fix for select2 search box)
+            bindEvents: false,
+
+            //Fix for overlay opacity issue in FF/Linux
+            applyPlatformOpacityRules : false
+        });
+
+        jQuery.post("index.php", {
+                "module" : "Workflow2",
+                "action" : "Execute",
+                "file"   : "ajaxExecuteWorkflow",
+
+                "crmid" : this.crmid,
+                "workflow" : this._workflowid,
+                allow_parallel: this._allowParallel,
+                "startfields": fields
+            },
+            jQuery.proxy(function(response) {
+                RedooUtils('Workflow2').unblockUI();
+
+                try {
+                    response = jQuery.parseJSON(response);
+                } catch (e) {
+                    console.log(response);
+                    return;
+                }
+
+                if(response["result"] == "ok") {
+                    if(ENABLEredirectionOrReloadAfterFinish) {
+                        window.location.reload();
+                    }
+                } else {
+                    console.log(response);
+                }
+            }, this)
+        );
+    }
+
+    this.closeForceNotification = function(messageId) {
+        jQuery.post('index.php?module=Workflow2&action=MessageClose', { messageId:messageId, force: 1 });
+    }
+
+    this.parseMessages = function() {
+        if(typeof WorkflowRecordMessages != 'object' || WorkflowRecordMessages.length == 0) {
+            return;
+        }
+        RedooUtils('Workflow2').loadScript('modules/Workflow2/views/resources/js/noty/jquery.noty.packaged.min.js').then(jQuery.proxy(function()
+        {
+            jQuery.each(WorkflowRecordMessages, function(index, value) {
+
+                if(typeof WFDvisibleMessages['workflowMessage' + value['id']] != 'undefined' && WFDvisibleMessages['workflowMessage' + value['id']] == true) {
+                    return;
+                }
+
+                var type = 'alert';
+                switch(value.type) {
+                    case 'success':
+                        type = 'success';
+                        break;
+                    case 'info':
+                        type = 'alert';
+                        break;
+                    case 'error':
+                        type = 'error';
+                        break;
+                }
+                value.message = '<strong>' + value.subject + "</strong><br/>" + value.message;
+
+                if(value.show_until != '') {
+                    value.message += '<br/><span style="font-size:10px;font-style: italic;">' +value.show_until + '</span>';
+                }
+                if(WFUserIsAdmin == true) {
+                    value.message += '&nbsp;&nbsp;<a href="#" style="font-size:10px;font-style: italic;" onclick="closeForceNotification(' + value.id + ');">(Remove Message)</a>';
+                }
+
+                WFDvisibleMessages['workflowMessage' + value['id']] = true;
+                if(value.position != -1) {
+                    noty({
+                        text: value.message,
+                        id: 'workflowMessage' + value['id'],
+                        type: value.type,
+                        timeout: false,
+                        'layout': value.position,
+                        'messageId': value.id,
+                        callback: {
+                            "afterClose": function () {
+                                WFDvisibleMessages['workflowMessage' + this.options.messageId] = false;
+                                jQuery.post('index.php?module=Workflow2&action=MessageClose', {messageId: this.options.messageId});
+                            }
+                        }
+                    });
+                }
+            });
+        }), this);
+    }
+
+    this.loadCachedScript = function( url, options ) {
+
+        // Allow user to set any option except for dataType, cache, and url
+        options = jQuery.extend( options || {}, {
+            dataType: "script",
+            cache: true,
+            url: url
+        });
+
+        // Use $.ajax() since it is more flexible than $.getScript
+        // Return the jqXHR object so we can chain callbacks
+        return jQuery.ajax( options );
+    };
+}

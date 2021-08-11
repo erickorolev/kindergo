@@ -1,0 +1,2 @@
+<p style="font-weight:bold;padding:10px;">Please notice:</p>
+<p style="padding:10px;">If the Workflow reach this block the PHP command <strong>exit()</strong> will be immediately executed and the user see probably a blank screen.</p>

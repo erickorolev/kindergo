@@ -1,0 +1,318 @@
+var ElementSelection = {
+    container:null,
+    selectionBoxPosition:{},
+    parentOffset:{},
+    boxDrawn:false,
+    removeSelection:true,
+    elements:true,
+    lastDragElements:[],
+    mustDrawBox:false,
+    lastSelected:null,
+    initEvent:function(container, elements) {
+        ElementSelection.container = jQuery(container);
+        ElementSelection.container.css('position', 'relative');
+        ElementSelection.parentOffset = ElementSelection.container.offset(); //position();
+
+        ElementSelection.elements = jQuery(elements, container);
+
+        jQuery(elements, container).on('click', ElementSelection.onClick);
+        jQuery(elements, container).on('contextmenu', ElementSelection.onContextMenu);
+
+        jQuery(container).on('click', function(e) {
+            ElementSelection.container.off('mousemove', ElementSelection.drawBox);
+
+            if(ElementSelection.startDragBoxTimeout !== null) {
+                window.clearTimeout(ElementSelection.startDragBoxTimeout);
+            }
+            ElementSelection.startDragBoxTimeout = null;
+        });
+
+        jQuery(container).on('mousedown', function(e) {
+            if(jQuery(e.target).closest('.wfBlock').length > 0) {
+                return;
+            }
+
+            ElementSelection.selectionBoxPosition.left = e.pageX - ElementSelection.parentOffset.left;
+            ElementSelection.selectionBoxPosition.width = 0;
+            ElementSelection.selectionBoxPosition.top = e.pageY - ElementSelection.parentOffset.top;
+            ElementSelection.selectionBoxPosition.height = 0;
+
+            ElementSelection.container.on('mousemove', ElementSelection.drawBox);
+
+            if(e.ctrlKey == false) {
+                ElementSelection.clearSelection();
+            }
+        });
+
+        jQuery(ElementSelection.container).on('block:dragstop', function(e, element) {
+            ElementSelection.container.css('cursor', 'default');
+            ElementSelection.stopDragging(element);
+        });
+    },
+    stopDrawBox:function(e) {
+        ElementSelection.container.off('mouseup', ElementSelection.stopDrawBox);
+        ElementSelection.container.off('mousemove', ElementSelection.drawBox);
+
+        if(ElementSelection.boxDrawn == false) return;
+
+        ElementSelection.finishDrawBox(e);
+    },
+    finishDrawBox:function(e) {
+        ElementSelection.boxDrawn = false;
+
+        jQuery('.selectionBox', ElementSelection.container).remove();
+
+        jQuery('.insideSelectionBox').each(function(index, ele) {
+            ElementSelection.select(ele, true);
+        });
+        jQuery('.insideSelectionBox').removeClass('insideSelectionBox');
+    },
+    clearSelection:function() {
+        jQuery('.ele-selection .selection-border', ElementSelection.container).remove();
+        jQuery('.ele-selection', ElementSelection.container).removeClass('ele-selection');
+    },
+    savePositionsAfterDragging:function() {
+        jQuery('.ele-selection', ElementSelection.container).each(function(index, ele) {
+            var position = jQuery(ele).position();
+            var params = {
+                module: 'Workflow2',
+                action: 'BlockMove',
+                parent: 'Settings',
+                workflow:workflow_id,
+                blockid:jQuery(ele).attr("id"),
+                left:position.left,
+                top:position.top
+            };
+
+            RedooAjax('Workflow2').post('index.php', params);
+            //AppConnector.request(params);
+        });
+    },
+    drawBox:function(e) {
+        var mouseX = e.pageX - ElementSelection.parentOffset.left;
+        var mouseY = e.pageY - ElementSelection.parentOffset.top;
+
+        var setValues = {'left': ElementSelection.selectionBoxPosition.left, 'top': ElementSelection.selectionBoxPosition.top, 'height':ElementSelection.selectionBoxPosition.height, 'width':ElementSelection.selectionBoxPosition.width};
+
+        if(mouseX < ElementSelection.selectionBoxPosition.left) {
+            setValues.width = ElementSelection.selectionBoxPosition.left - mouseX - 5;
+            setValues.left = mouseX;
+        } else {
+            setValues.width = mouseX - ElementSelection.selectionBoxPosition.left - 5;
+        }
+
+        if(mouseY < ElementSelection.selectionBoxPosition.top) {
+            setValues.height = ElementSelection.selectionBoxPosition.top - mouseY - 5;
+            setValues.top = mouseY;
+        } else {
+            setValues.height = mouseY - ElementSelection.selectionBoxPosition.top - 5;
+        }
+
+        if (ElementSelection.boxDrawn == false) {
+            if (setValues.width > 5 || setValues.height > 5) {
+                ElementSelection.container.css('cursor', 'pointer');
+
+                ElementSelection.boxDrawn = true;
+                ElementSelection.container.append('<div class="selectionBox" style="left:' + ElementSelection.selectionBoxPosition.left + 'px;top:' + ElementSelection.selectionBoxPosition.top + 'px;"></div>');
+
+                ElementSelection.container.on('mouseup', ElementSelection.stopDrawBox);
+            } else {
+                return;
+            }
+        }
+
+        jQuery('.selectionBox', ElementSelection.container).css({
+            'width': setValues.width + 'px',
+            'height': setValues.height + 'px',
+            'left': setValues.left + 'px',
+            'top': setValues.top + 'px'
+        });
+
+        var boxPosition = jQuery('.selectionBox', ElementSelection.container).position();
+
+        var boxSize = {'width': boxPosition.left + jQuery('.selectionBox', ElementSelection.container).width(), 'height': boxPosition.top + jQuery('.selectionBox', ElementSelection.container).height() };
+
+        var target = ElementSelection.elements.filter(function() {
+            var position = jQuery(this).position();
+
+            if(position.left > boxPosition.left && position.left < boxSize.width && position.top > boxPosition.top && position.top < boxSize.height) {
+                return true;
+            }
+        });
+
+        jQuery('.insideSelectionBox').removeClass('insideSelectionBox');
+        target.addClass('insideSelectionBox');
+    },
+    onContextMenu:function(e) {
+        if(typeof e.ctrlKey != 'undefined') {
+            if(jQuery(e.currentTarget).hasClass('ele-selection')) {
+                return;
+            } else {
+                ElementSelection.onClick(e);
+            }
+        }
+    },
+    onClick:function(e) {
+        if(ElementSelection.removeSelection == false) {
+            ElementSelection.removeSelection = true;
+            return;
+        }
+
+        if(e.shiftKey == true && ElementSelection.lastSelected !== null) {
+            var path = ElementSelection.findPath(ElementSelection.lastSelected, e.currentTarget);
+            if(e.ctrlKey == false) {
+                ElementSelection.clearSelection();
+            }
+
+            jQuery.each(path, function(index, ele) {
+                ElementSelection.select(jQuery('#' + ele), true);
+            });
+            return;
+        }
+
+        if(e.ctrlKey == true) {
+            if(ElementSelection.selected(e.currentTarget)) {
+                ElementSelection.unselect(e.currentTarget);
+            } else {
+                ElementSelection.select(e.currentTarget, true);
+            }
+
+        } else {
+            ElementSelection.select(e.currentTarget);
+        }
+        ElementSelection.lastSelected = e.currentTarget;
+    },
+    stack:[],
+    findPath:function(fromEle, toEle) {
+        var fromId = jQuery(fromEle).attr('id');
+        var toId = jQuery(toEle).attr('id');
+
+        ElementSelection.stack = [];
+        ElementSelection.getSiblings(fromId, toId);
+        var path = ElementSelection.stack;
+        if(path.length == 0) {
+            ElementSelection.stack = [];
+            ElementSelection.getSiblings(toId, fromId);
+            path = ElementSelection.stack;
+        }
+        if(path.length == 0) {
+            return [];
+        }
+
+        return path;
+    },
+    getSiblings:function(id, needId) {
+        var found = false;
+
+        if(typeof endpoints[id + '__input'] == 'undefined') {
+            return false;
+        }
+
+        ElementSelection.stack.push(id);
+
+        jQuery.each(endpoints[id + '__input'].connections, function(index, connection) {
+            if(needId == connection.sourceId) {
+                ElementSelection.stack.push(connection.sourceId);
+                found = true;
+                return false;
+            } else {
+                found = ElementSelection.getSiblings(connection.sourceId, needId);
+
+                if(found == true) {
+                    return false;
+                }
+            }
+        });
+
+        if(found === false) {
+            ElementSelection.stack.pop();
+        }
+
+        return found;
+    },
+    selected:function(ele) {
+        if(jQuery(ele).hasClass('ele-selection')) {
+            return true;
+        }
+        return false;
+    },
+    unselect:function(ele) {
+        jQuery(ele, ElementSelection.container).removeClass('ele-selection');
+        jQuery('.selection-border', ele).remove();
+    },
+    select:function(ele, append) {
+        if(typeof append == 'undefined') append = false;
+        if(append == false) {
+            ElementSelection.clearSelection();
+        }
+
+        var height = jQuery('.blockDescription', ele).height();
+        jQuery(ele, ElementSelection.container).addClass('ele-selection');
+        jQuery(ele, ElementSelection.container).append('<div style="height:' + (height + 60) + 'px;" class="selection-border"></div>');
+    },
+    doDragging:function(container, x, y) {
+        var differenceX = ElementSelection.dragstartX - x;
+        var differenceY = ElementSelection.dragstartY - y;
+
+        ElementSelection.dragElements.each(function(index, ele) {
+            var leftPos = (Number(jQuery(ele).data('posx')) - differenceX);
+            var topPos = (Number(jQuery(ele).data('posy')) - differenceY);
+            jQuery(ele).css({'left': leftPos + 'px', 'top': topPos + 'px'});
+
+            jsPlumbInstance.repaint(ele, {left:leftPos,top:topPos});
+        });
+    },
+    stopDragging:function(startElement) {
+        var position = jQuery(startElement).position();
+
+        if(Math.abs(ElementSelection.dragstartX - position.left) > 0 || Math.abs(ElementSelection.dragstartY - position.top > 0)) {
+            ElementSelection.removeSelection = false;
+        }
+
+        startElement.on('click', ElementSelection.onClick);
+
+        ElementSelection.lastDragElements = jQuery('.drag-elements', ElementSelection.container);
+
+        jQuery('.drag-elements', ElementSelection.container).removeClass('drag-elements');
+
+        ElementSelection.dragElements = [];
+    },
+    startDragging:function(container, startElement, event) {
+        var position = jQuery(startElement).position();
+        ElementSelection.dragstartX = position.left;
+        ElementSelection.dragstartY = position.top;
+
+        if(!jQuery(startElement).hasClass('ele-selection')) {
+            if (event.ctrlKey == true) {
+                ElementSelection.select(startElement, true);
+            } else {
+                ElementSelection.select(startElement, false);
+            }
+        }
+
+
+        jQuery(startElement, container).off('click', ElementSelection.onClick);
+
+        /*if(jQuery('.ele-selection', container).length == 0) {
+         ElementSelection.select(startElement);
+         }*/
+
+        jQuery('.ele-selection', container).addClass('drag-elements');
+
+        if(jQuery('.ele-selection', container).length > 1) {
+            jQuery(startElement).addClass('drag-start').removeClass('drag-elements');
+        }
+
+        ElementSelection.dragElements = jQuery('.drag-elements', container);
+
+        ElementSelection.dragElements.each(function(index, ele) {
+            var position = jQuery(ele).position();
+
+            jQuery(ele).data('posx', position.left);
+            jQuery(ele).data('posy', position.top);
+        })
+    },
+    getSelectedBlocks:function() {
+        return jQuery('.wfBlock.ele-selection', ElementSelection.container);
+    }
+};
