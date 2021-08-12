@@ -49,7 +49,10 @@ $languageStrings = array (
   'LBL_INSURANCES' => 'Количество страховок',
   'LBL_CLIENT' => 'Клиент',
   'Not specified' => 'Не указано',
-  'LBL_POINTS_OUTSIDE_MRR' => 'Точек за МКАД'
+  'LBL_POINTS_OUTSIDE_MRR' => 'Точек за МКАД',
+  'LBL_TIMETABLE_DISCOUNT' => 'Скидка'
+  'LBL_TIMETABLE_INCREASE' => 'Надбавка'
+  'LBL_TIMETABLE_INCREASE_MRR' => 'Надбавка за МКАД'
 
 
 );
