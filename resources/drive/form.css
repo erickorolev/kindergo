@@ -1,11 +1,65 @@
+.closePanelOpenCalendar
+{
+	text-align:right;
+	padding:10px;
+}
+
+.nowday
+{
+	font-weight:bold;
+	color:red!important;
+	border:1px solid red;
+}
+
+[data-fieldname="date"]
+{
+	background:#EEE;	
+}
+
+.actionButton
+{
+	margin-left:5px;
+}
+
+.containerCalendar
+{
+	overflow:auto;
+}
+.actionButtonCalendar
+{
+	clear:both;
+	text-align:center;
+}
+
 #openPanelLI li
 {
 	list-style-type: none; 
 	text-decoration:underline;
 	cursor:pointer; 
 }
+
+.blockCalendar tr td
+{
+	font-size:17px;
+	padding:5px 8px;
+}
+
+.blockCalendar div
+{
+	padding:5px;
+	font-size:17px;
+}
+.blockCalendar
+{
+	display:block;
+	float:left;
+	background:#FFF;
+	margin:20px;
+	min-height:340px;
+}
 #autocomliteaddr
 {
+	overflow:auto;
 	background:#EEE;
 	position:absolute;
 	z-index:1000;
@@ -14,21 +68,55 @@
 	z-index:10000;
 }
 
+.b-calendar__number
+{
+	text-align:center;
+	cursor:pointer;
+}
+
+.b-calendar__number:hover
+{
+	background:#CCC;
+	color:white;
+	
+}
+
+.selectDay
+{
+	background:#534c4c;
+	color:white;
+	
+}
+
+#openCalendar
+{
+	overflow:auto;
+	display:none;
+	width:90%;
+	height:90%;
+	left:5%;
+	top:5%;
+	padding-bottom:20px;
+	z-index:1000000;
+	background:#CCC;
+	position:fixed;
+}
+
 .containerForTest
 {
-display:none;	
+	display:none;	
 }
 
 .openPanelMenu ul 
 {
 	text-decoration:none;
-	  list-style: none!important;
+	list-style: none!important;
 }
 
 .openPanelMenu ul li
 {
 	text-decoration:none;
-	  list-style: none;
+	list-style: none;
 }
 
 
@@ -80,5 +168,4 @@ ymaps[class*="search__suggest"]
 	color:red!important;
 	background:red!important;
 	/**/
-	
 }

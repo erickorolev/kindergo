@@ -22,7 +22,7 @@
 {if (!$FIELD_NAME)}
   {assign var="FIELD_NAME" value=$FIELD_MODEL->getFieldName()}
 {/if}
-<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="inputElement" name="{$FIELD_NAME}"
+<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="inputElement" name="{$FIELD_NAME}" data-fieldname="{$FIELD_NAME}"
 value="{$FIELD_VALUE}" {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}
 {if $FIELD_INFO["mandatory"] eq true} data-rule-required="true" {/if}
 {if count($FIELD_INFO['validator'])}

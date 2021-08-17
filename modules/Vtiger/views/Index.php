@@ -36,6 +36,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 			$this->setModuleInfo($request,$moduleModel);
 		}
 
+		$viewer->assign('CURRENT_DATE', date("Y-m-d"));
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
                 // SalesPlatform.ru begin #5116 fixed localization 
                 $viewer->assign('LOCALE', Users_Record_Model::getCurrentUserModel()->getUserLanguage()); 

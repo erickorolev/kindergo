@@ -82,27 +82,54 @@
             <div id="messageBar" class="hide"></div>
 			
 			
+		<input type="hidden" value="{$CURRENT_DATE}" id="currentDate" />	
+		<input type="hidden" value="0" id="countCalendar" />	
+		<input type="hidden" value="" id="recordFieldName" />
+		<input type="hidden" value="" id="yearTemp" />
+		<input type="hidden" value="" id="monthTemp" />
+		
+		<div id="openCalendar"> 
+		<div class="closePanelOpenCalendar"><a href="javascript:closePanel('openCalendar')">Закрыть</a></div>
+		<div class="containerCalendar"></div>
+		<div class="actionButtonCalendar">
+			<span id="button1">
+			<input type="button" class="actionButton" onclick="saveCalendar()" value="Сохранить" /> 
+			</span>
+			<span id="button2">
+			<input type="button" class="actionButton" onclick="addCalendar(0,'')" id="addNewCalendar" value="Добавить Календарь" /> 
+			</span>
+			<span id="button3">
+			</span>
+			{*<a href="javascript:addCalendar()" id="addNewCalendar">Добавить</a>*} 
 			
+			</div>	
+		<div></div>
+		
+		
+		</div>
+		
+		
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-			<head>
-				<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
-				</script>
-			</head>
-			<div id="mapBlock">
+		<div id="mapBlock">
+			<input type="hidden" name="" id="duration_id" />
+			<input type="hidden" name="" id="distance_id" />
 			
-				<div class="containerForTest">
-				ИДБлок: <input type="text" id="idblock" value="" />
-				Дистанция: <input type="text" id="distance" value="" />
-				Длительность: <input type="text" id="duration" value="" />
+			<div class="containerForTest">
+			ИДБлок: <input type="text" id="idblock" value="" />
+			Дистанция: <input type="text" id="distance" value="" />
+			Длительность: <input type="text" id="duration" value="" />
+		
+			Откуда: <input type="text" id="startpoint" value="" />
+			Куда: <input type="text" id="endpoint" value="" />
 			
-				Откуда: <input type="text" id="startpoint" value="" />
-				Куда: <input type="text" id="endpoint" value="" />
-				
-				Координаты1: <input type="text" id="XY1" value="" />
-				Координаты2: <input type="text" id="XY2" value="" />
-				</div>
-				
-				
-				<input type="button" value="save" onclick="setparam()" /> <input type="button" value="cencel" onclick="cencel()" />
-				<div id="map" style="width: 100%; height: 100%"></div>
+			Координаты1: <input type="text" id="XY1" value="" />
+			Координаты2: <input type="text" id="XY2" value="" />
 			</div>
+			<input type="button" value="save" onclick="setparam()" /> <input type="button" value="cencel" onclick="cancel()" />
+			<div id="map" style="width: 100%; height: 100%"></div>
+		</div>
+		
+		
+		<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
+		</script>
+			
