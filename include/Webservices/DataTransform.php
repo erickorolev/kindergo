@@ -62,6 +62,15 @@ require_once 'modules/Vtiger/services/ImageReceiver.php';
 			if(!empty($recordLabel)){
 				$row['label'] = $recordLabel;
 			}
+
+			if (array_key_exists(Vtiger_ImageReceiver_Service::AVATAR_FIELD, $row)) {
+				$receiverService = new Vtiger_ImageReceiver_Service((int) vtws_getCRMEntityId($row['id']), Vtiger_ImageReceiver_Service::AVATAR_FIELD, $row[Vtiger_ImageReceiver_Service::AVATAR_FIELD]);
+				$row['avatar'] = $receiverService->getAvatar();
+			}
+			if (array_key_exists(Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD, $row)) {
+				$receiverService = new Vtiger_ImageReceiver_Service((int) vtws_getCRMEntityId($row['id']), Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD, $row[Vtiger_ImageReceiver_Service::DOCUMENTS_FIELD]);
+				$row['images'] = $receiverService->getImages();
+			}
 			return $row;
 		}
 

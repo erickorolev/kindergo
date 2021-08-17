@@ -17,7 +17,7 @@
 		$handlerClass = $webserviceObject->getHandlerClass();
 		
 		require_once $handlerPath;
-		
+		/** @var VtigerModuleOperation $handler */
 		$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
 		$meta = $handler->getMeta();
 		$entityName = $meta->getObjectEntityName($id);
@@ -41,7 +41,7 @@
 		if(!$meta->exists($idComponents[1])){
 			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
 		}
-		
+
 		$entity = $handler->retrieve($id);
 		VTWS_PreserveGlobal::flush();
 		return $entity;
