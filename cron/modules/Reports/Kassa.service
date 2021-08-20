@@ -1,0 +1,65 @@
+<?php 
+global $adb;
+global $url_api;
+global $url_username;
+global $url_password;
+
+echo "start";
+
+function gen_uuid() {
+	return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+		mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+		mt_rand( 0, 0xffff ),
+		mt_rand( 0, 0x0fff ) | 0x4000,
+		mt_rand( 0, 0x3fff ) | 0x8000,
+		mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+	);
+}
+
+$url = $url_api.'?limit=10&status=succeeded';
+$username = $url_username;
+$password =  $url_password;
+$ch = curl_init($url);
+$data = json_encode($data, JSON_UNESCAPED_UNICODE);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_HEADER, false);
+curl_setopt($ch, CURLOPT_USERPWD, $username . ":" . $password);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Idempotence-Key: ' . gen_uuid()));
+$response = curl_exec($ch);
+ 
+//print_r($response); 
+ 
+//Check for errors.
+if(curl_errno($ch)){
+    //If an error occured, throw an Exception.
+    throw new Exception(curl_error($ch));
+}
+
+	$filer=json_decode($response);
+	foreach ($filer as $key=>$lineRow)
+	{
+		$countResponse++;
+		//print "===>".$countResponse."<br>";
+		if ($key=="items")
+		{
+			foreach ($lineRow as $key2=>$row)
+			{
+				if ($row->status=="succeeded")
+				{
+					$adb->pquery("UPDATE sp_payments SET spstatus='Executed' WHERE spstatus='Scheduled' AND pay_details = '".$row->id."' LIMIT 1");
+
+					$relatedlistproj = $adb->pquery("SELECT related_to FROM  sp_payments WHERE  pay_details = '".$row->id."' LIMIT 1");
+					$res_cnt = $adb->num_rows($relatedlistproj);		
+					if($res_cnt > 0) 
+					{
+						$related_to = $adb->query_result($relatedlistproj,$i,"related_to");		
+						$adb->pquery("UPDATE vtiger_invoice SET invoicestatus='Paid' WHERE  invoiceid = '".$related_to."' LIMIT 1");
+					}
+				}
+			}
+		}
+	}
+	
+echo "end";
+?>

@@ -18,6 +18,15 @@ function closePanel(namePanel)
 	$("#"+namePanel).hide();
 }
 
+function addInvoice(recordId)
+{ 
+	if (window.confirm("Создать Счет?")) { 
+		document.location.href='index.php?module=Potentials&action=Convert&mode=CreateInvoiceFromPOT&quoteid='+recordId;
+	}
+}
+
+
+
 function addPot(recordId)
 { 
 	if (window.confirm("Создать КП?")) { 
@@ -356,6 +365,7 @@ function addCalendar(type,value,countMonth)
 	});
 } 
 
+/*
 $("[data-fieldname=date]").live( "click", function() 
 {
 	let currentDateConst=$("#currentDate").val().split("-");
@@ -388,7 +398,7 @@ $("[data-fieldname=date]").live( "click", function()
 	{
 		addCalendar(0,"",1);
 	}
-});
+});/**/
 
 
 $(".b-calendar__number").live( "click", function() {

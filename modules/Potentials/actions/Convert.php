@@ -6,7 +6,9 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		 $this->exposeMethod('CreateQ');
 		 $this->exposeMethod('sendRequestToYandexAPI');
 		 $this->exposeMethod('CreateQFromPOT');
-		 $this->exposeMethod('createCalendar');		 
+		 $this->exposeMethod('createCalendar');		
+		 $this->exposeMethod('CreateInvoiceFromPOT');		
+			
 	}
 	
 	public function process(Vtiger_Request $request) {
@@ -192,6 +194,140 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		}	
 	}
 	
+		
+				
+	function gen_uuid2() {
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0x0fff ) | 0x4000,
+			mt_rand( 0, 0x3fff ) | 0x8000,
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+		);
+	}
+
+
+
+	function CreateInvoiceFromPOT(Vtiger_Request $request) 
+	{
+		$record=$request->get("quoteid");
+			
+		$recordModel = Vtiger_Record_Model::getInstanceById($record, "Quotes");	
+		$potential_id=$recordModel->get("potential_id");
+		$contactid=$recordModel->get("contact_id");
+		$hdnGrandTotal=$recordModel->get("hdnGrandTotal");
+		
+		global $adb;
+		global $url_api;
+		global $url_username;
+		global $url_password;
+
+		$url = $url_api;
+		$username = $url_username;
+		$password =  $url_password;
+	
+		$ch = curl_init($url);
+
+		$data = array(
+			'amount' => array(
+				'value' => $hdnGrandTotal,
+				'currency' => 'RUB',
+			),
+			'capture' => true,
+			'confirmation' => array(
+				'type' => 'redirect',
+				'return_url' => 'http://ya.ru',
+			),
+			'description' => 'Заказ drive №1',
+			'metadata' => array(
+				'order_id' => 1,
+			)
+		);
+			
+		$data = json_encode($data, JSON_UNESCAPED_UNICODE);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_USERPWD, $username . ":" . $password); 
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Idempotence-Key: '.$this->gen_uuid2()));
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data); 
+
+		//Execute the cURL request.
+		$response = curl_exec($ch);
+		
+		//Check for errors.
+		if(curl_errno($ch)){
+			//If an error occured, throw an Exception.
+			throw new Exception(curl_error($ch));
+		}
+		
+		$response2=json_decode($response);
+
+		
+		$url=$response2->confirmation->confirmation_url;
+		
+		$id=$response2->id;
+
+		$moduleName="Invoice";
+		$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
+		$recordModel->set('mode', '');
+		$recordModel->set("subject", "subject");
+		$recordModel->set("potential_id", $potential_id);
+		$recordModel->set("contact_id", $contactid);
+		$recordModel->set("invoicestatus", "Sent");
+		$recordModel->set("hdnGrandTotal", $hdnGrandTotal);
+		$recordModel->set("hdnSubTotal", $hdnGrandTotal);
+		
+		$recordModel->save();  
+		$invoice=$recordModel->getId();
+		
+		$adb->pquery("UPDATE vtiger_invoice SET subtotal='".$hdnGrandTotal."',total='".$hdnGrandTotal."' WHERE invoiceid = '".$invoice."' LIMIT 1");
+				
+		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_inventoryproductrel WHERE id='".$record."' LIMIt 100");
+		$res_cnt = $adb->num_rows($relatedlistproj);		
+		if($res_cnt > 0) {
+			
+			$onepay=true;
+			for($i=0;$i<$res_cnt;$i++) 
+			{
+				$no++;
+
+				$productid = $adb->query_result($relatedlistproj,$i,"productid");	
+				$sequence_no = $adb->query_result($relatedlistproj,$i,"sequence_no");
+				$quantity = $adb->query_result($relatedlistproj,$i,"quantity");
+				$listprice = $adb->query_result($relatedlistproj,$i,"listprice");
+				$comment = $adb->query_result($relatedlistproj,$i,"comment");
+				$margin = $adb->query_result($relatedlistproj,$i,"margin");
+				
+				$adb->pquery("insert into vtiger_inventoryproductrel (id,productid,sequence_no,quantity,listprice,comment,margin) VALUES ('".$invoice."','".$productid."','".$sequence_no."','".$quantity."','".$listprice."','".$comment."','".$margin."')");  
+			
+			}
+		}
+
+		$moduleName="SPPayments";
+		$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
+		$recordModel->set('mode', '');
+		$recordModel->set("pay_date", date("Y-m-d"));
+		$recordModel->set("pay_type", "Receipt");
+		$recordModel->set("payer", $contactid);
+		$recordModel->set("related_to", $invoice);
+		$recordModel->set("type_payment", "Online payment");
+		$recordModel->set("amount", $hdnGrandTotal);
+		$recordModel->set("spstatus", "Scheduled");
+		
+		$recordModel->set("description", $url);
+		$recordModel->set("pay_details", $id);
+		
+		
+		$recordModel->save();  
+		$pay=$recordModel->getId();
+		
+		header("location:?module=Invoice&view=Detail&record=".$invoice."");
+		exit;
+		
+	}
+	
 	function CreateQFromPOT(Vtiger_Request $request) 
 	{
 		global $adb; 
@@ -290,6 +426,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					if ($insurances>0)
 					{
 						$itogoPrice1=$this->setInvService($quoteid,26,$no,$insurances,$description); //Страховка $insurances
+						$itogoPriceALL=$itogoPriceALL+$itogoPrice1;
 						$no++;
 					}	
 
