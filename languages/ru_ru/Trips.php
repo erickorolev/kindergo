@@ -41,8 +41,8 @@ $languageStrings = array (
   'LBL_TIMETABLE_PERIOD' => 'Период сопровождения (мес)',
   'LBL_ATTENDANT_INCOME' => 'Доход сопровождающего (руб)',
   'LBL_IMAGES_LIST' => 'Ссылки на документы',
-  'LBL_FROM_COORDINATES ' => 'Откуда координаты',
-  'LBL_WHERE_COORDINATES ' => 'Куда координаты',
+  'LBL_FROM_COORDINATES' => 'Откуда координаты',
+  'LBL_WHERE_COORDINATES' => 'Куда координаты',
   
 );
 
