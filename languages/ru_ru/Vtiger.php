@@ -9,7 +9,7 @@
  ************************************************************************************/
 $languageStrings = array(
 
-	 // Поля связанного модуля Сопровождение
+	 // Поля связанного модуля Расписание
     'Name' => 'Откуда',
  	'LBL_WHERE_ADDRESS' => 'Куда',
 	  'LBL_TRIPS' => 'Количество поездок',   
@@ -160,7 +160,7 @@ $languageStrings = array(
 	'Rss'                          => 'RSS-ленты'                         ,
 	'Quotes'                       => 'Предложения'      ,
 	'PurchaseOrder'                => 'Закупки',
-	'SalesOrder'                   => 'Сопровождения',
+	'SalesOrder'                   => 'Заказы',
 	'Invoice'                      => 'Счета'                  ,
 	'MailManager'                  => 'Менеджер почты' ,
 	'Activities'				   => 'Действия'					,
@@ -680,7 +680,7 @@ $languageStrings = array(
 	'Projects' => 'Проекты',
     // SalesPlatform.ru begin New localization
     'LBL_LEFT_PANEL_SHOW_HIDE' => 'Показать/скрыть левую панель',
-	'Sales Order' => 'Сопровождения',
+	'Sales Order' => 'Заказы',
 	'Purchase Order' => 'Закупки',
     //'Sales Order' => 'Заказы на продажу',
 	//'Purchase Order' => 'Заказы на закупку',
@@ -1143,7 +1143,7 @@ $languageStrings = array(
     'Received Purchase Orders'    =>    'Полученные Закупки',
     'Open Invoices'     =>    'Открытые Счета',
     'Paid Invoices'     =>    'Оплаченные Счета',
-    'Pending Sales Orders'   =>    'Текущие Сопровождения',
+    'Pending Sales Orders'   =>    'Текущие Заказы',
     'This is a Default Folder'  =>  'Это папка по умолчанию',
     'LBL_HAS_CHANGED_TO' => 'изменено на',
     'LBL_IS_ADDED' => 'добавлено',
@@ -1555,7 +1555,7 @@ $languageStrings = array(
     'LBL_EXPORT_FILE_NAME' => 'Экспорт именем',
     'LBL_EXTENSION_NOT_ALLOWED_FOR_NONADMIN' => '%синхронизации допускается только для пользователей с правами администратора',
     'SINGLE_Invoice' => 'Счет',
-    'SINGLE_SalesOrder' => 'Сопровождение',
+    'SINGLE_SalesOrder' => 'Заказ',
     'SINGLE_PurchaseOrder' => 'Закупка',
     'SINGLE_Quotes' => 'Предложение',
     'LBL_POST_YOUR_COMMENT_HERE' => 'Оставить свой комментарий здесь',

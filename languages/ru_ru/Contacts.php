@@ -84,15 +84,15 @@ $languageStrings = array(
     'LBL_CAR_COLOR' => 'Цвет автомобиля',
     'Other' => 'Не указано',
     'LBL_IMAGE_AVATAR' => 'Ссылка на аватар',
-    'LBL_IMAGES_LIST' => 'Ссылки на документы'
+    'LBL_IMAGES_LIST' => 'Ссылки на документы',
+    'LBL_ATTENDANT_COORDINATES' => 'Координаты адреса'
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
     'LBL_SYNCRONIZING'             => 'Синхронизация...',
     'LBL_NOT_SYNCRONIZED'          => 'Не синхронизировано',
 	'LBL_FIELD_MAPPING'            => 'Соответствие полей',
-    'Contacted - Successful'       => 'Успешный Контакт',
-    'JS_SAVED_SUCCESSFULLY'        => 'Настройки сохранены',
+    'Contacted - Successful'       => 'Успешный Контакт'
 );
 
 // SalesPlatform.ru begin SPConfiguration fix

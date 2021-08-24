@@ -8,16 +8,16 @@
  * All Rights Reserved.
  ************************************************************************************/
 $languageStrings = array(
-	'SINGLE_SalesOrder'            => 'Сопровождение', 
+	'SINGLE_SalesOrder'            => 'Заказ', 
 	'LBL_EXPORT_TO_PDF'            => 'Экспорт в PDF:'       , 
 	'LBL_SEND_MAIL_PDF'            => 'Отправить PDF по Email:'         , // TODO: Review
-	'LBL_ADD_RECORD'               => 'Добавить Сопровождение'             , // TODO: Review
-	'LBL_RECORDS_LIST'             => 'Список Сопровождений' , // KEY 5.x: LBL_LIST_SO_FORM_TITLE
-	'LBL_SO_INFORMATION'           => 'Сопровождение', 
-	'SalesOrder No'                => 'Сопровождение №'              , 
+	'LBL_ADD_RECORD'               => 'Добавить Заказ'             , // TODO: Review
+	'LBL_RECORDS_LIST'             => 'Список Заказов' , // KEY 5.x: LBL_LIST_SO_FORM_TITLE
+	'LBL_SO_INFORMATION'           => 'Заказ', 
+	'SalesOrder No'                => 'Заказ №'              , 
 	'Quote Name'                   => 'Предложение'      , 
 	'Customer No'                  => 'Клиент №'            , 
-	'Requisition No'               => 'Сопровождение №'              , 
+	'Requisition No'               => 'Заказ №'              , 
 	'Tracking Number'              => 'Отслеживаемый номер', 
 	'Sales Commission'             => 'Комиссионные'    , 
 	'Purchase Order'               => 'Закупки', 
@@ -49,7 +49,7 @@ $languageStrings = array(
     //SalesPlatform.ru begin
     'Self Company' => 'Юр. лицо',    
     //SalesPlatform.ru end
-    'SalesOrder' => 'Сопровождения',
+    'SalesOrder' => 'Заказы',
     'LBL_THIS' => 'Это',
     'LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM' => 'будет удален из системы. Просьба удалить или заменить этот пункт',
     'LBL_THIS_LINE_ITEM_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_THIS_LINE_ITEM' => 'Эта позиция удаляется из системы,пожалуйста, удалите эту строку элементов',
