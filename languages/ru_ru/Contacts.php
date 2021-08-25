@@ -85,7 +85,8 @@ $languageStrings = array(
     'Other' => 'Не указано',
     'LBL_IMAGE_AVATAR' => 'Ссылка на аватар',
     'LBL_IMAGES_LIST' => 'Ссылки на документы',
-    'LBL_ATTENDANT_COORDINATES' => 'Координаты адреса'
+    'LBL_ATTENDANT_COORDINATES' => 'Координаты адреса',
+    'LBL_PARKING_INFO' => 'Информация о парковке',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
