@@ -59,7 +59,6 @@ $languageStrings = Array(
 
     'LBL_ATTENDANTA_SIGNATURE' => 'Подпись сопровождающего',
     'Signed by' => 'Подписан',
-    'Not signed' => 'Не подписан',
     'Disputed' => 'Оспорен',
     'LBL_DISPUTE_REASON' => 'Причина оспаривания',
     'Not specified' => 'Не указано',
