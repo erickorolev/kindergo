@@ -457,3 +457,11 @@
 	content: "\e64b";
 }
 /* SalesPlatform.ru end */
+
+.vicon-trips:before {
+content: "\e665";
+}
+
+.vicon-timetable:before {
+content: "\e60a";
+}
