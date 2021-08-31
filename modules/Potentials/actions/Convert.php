@@ -8,7 +8,8 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		 $this->exposeMethod('CreateQFromPOT');
 		 $this->exposeMethod('createCalendar');		
 		 $this->exposeMethod('CreateInvoiceFromPOT');		
-			
+		 $this->exposeMethod('getCoord');	
+		 $this->exposeMethod('CreateTripsFromPOT');		
 	}
 	
 	public function process(Vtiger_Request $request) {
@@ -31,6 +32,55 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		return true;
 	}
 	
+	function getCoord(Vtiger_Request $request)
+	{
+		global $adb;
+		$module=$request->get("mod");
+		$recordid=$request->get("record");
+		
+		if ($module=="potential")
+		{
+			$relatedlistproj = $adb->pquery("SELECT name FROM  vtiger_crmentity,vtiger_timetable WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_timetable.timetableid AND vtiger_timetable.cf_potentials_id='".$recordid."' LIMIT 100");
+			$res_cnt = $adb->num_rows($relatedlistproj);		
+			if($res_cnt > 0) 
+			{
+				for($i=0;$i<$res_cnt;$i++) 
+				{
+					$name2 = $adb->query_result($relatedlistproj,$i,"name");
+					$name.=$name2."##";
+				}
+			}
+		}
+		else
+		{
+			$relatedlistproj = $adb->pquery("SELECT name FROM  vtiger_crmentity,vtiger_trips WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_trips.tripsid AND vtiger_trips.tripsid='".$recordid."' LIMIT 1");
+			$res_cnt = $adb->num_rows($relatedlistproj);		
+			if($res_cnt > 0) 
+			{
+				for($i=0;$i<$res_cnt;$i++) 
+				{
+					$name2 = $adb->query_result($relatedlistproj,$i,"name");
+					$name.=$name2."##";
+				}
+			}
+		}
+		
+		$relatedlistproj = $adb->pquery("SELECT crmid,firstname,lastname,attendant_coordinates FROM  vtiger_crmentity,vtiger_contactdetails,vtiger_contactscf WHERE vtiger_contactdetails.contactid=vtiger_crmentity.crmid AND vtiger_contactdetails.contactid=vtiger_contactscf.contactid AND vtiger_contactdetails.attendant_coordinates!=''  AND vtiger_contactdetails.type='Attendant' AND vtiger_contactdetails.attendant_status='Active' LIMIt 200");
+		$res_cnt = $adb->num_rows($relatedlistproj);		
+		if($res_cnt > 0) {
+			for($i=0;$i<$res_cnt;$i++) 
+			{
+				$crmid = $adb->query_result($relatedlistproj,$i,"crmid");
+				$firstname = $adb->query_result($relatedlistproj,$i,"firstname");	
+				$lastname = $adb->query_result($relatedlistproj,$i,"lastname");	
+				$coordinat = $adb->query_result($relatedlistproj,$i,"attendant_coordinates");	
+				$line.=$crmid."##".$firstname." ".$lastname."##".$coordinat."::";
+			}
+		}
+		print $name."||".$line;
+		exit;
+	}
+		
 	function createCalendar(Vtiger_Request $request)
 	{ 
 		$monthArr=array(
@@ -144,9 +194,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 			{
 				$calendar.= '<div class="b-calendar__number '.$nowday.'">'.$list_day.'</div>';
 			}
-			
 			$calendar.= '</td>';
-			
 			if ($running_day == 6) {
 				$calendar.= '</tr>';
 				if (($day_counter + 1) != $days_in_month) {
@@ -155,7 +203,6 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				$running_day = -1;
 				$days_in_this_week = 0;
 			}
-
 			$days_in_this_week++; 
 			$running_day++; 
 			$day_counter++;
@@ -176,17 +223,16 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 	{
 	}
 	
-	function setInvService($quoteid,$serviceid,$no,$count,$description)
+	function getInvService($serviceid,$count=1)
 	{
 		global $adb; 
-		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_service WHERE serviceid='".$serviceid."' LIMIt 100");
+		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_service WHERE serviceid='".$serviceid."' LIMIT 1");
 		$res_cnt = $adb->num_rows($relatedlistproj);		
-		if($res_cnt > 0) {
-
-			$unit_price = $adb->query_result($relatedlistproj,0,"unit_price");
+		if($res_cnt > 0) 
+		{ 
+			$unit_price = $adb->query_result($relatedlistproj,0,"unit_price");  
 			$itogo=$unit_price*$count;	
-			$adb->pquery("insert into vtiger_inventoryproductrel (id,productid,sequence_no,quantity,listprice,comment)  VALUES ('".$quoteid."','".$serviceid."','".$no."','".$count."','".$unit_price."','".$description."')");  
-			return $itogo;
+			return $itogo; 
 		}
 		else
 		{
@@ -194,8 +240,29 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		}	
 	}
 	
-		
-				
+	function setInvService($quoteid,$serviceid,$no,$count,$description,$discount=0)
+	{
+		global $adb; 
+		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_service WHERE serviceid='".$serviceid."' LIMIt 100");
+		$res_cnt = $adb->num_rows($relatedlistproj);		
+		if($res_cnt > 0) 
+		{
+			$unit_price = $adb->query_result($relatedlistproj,0,"unit_price");
+			$unit_price=number_format((float)$unit_price, 2, '.', ''); 
+			$itogo=$unit_price*$count;	
+			if ($discount>0){
+				$itogo=$itogo-$itogo*$discount/100;
+				$margin=$itogo;
+			}
+			$adb->pquery("insert into vtiger_inventoryproductrel (id,productid,sequence_no,quantity,listprice,discount_percent,comment,margin)  VALUES ('".$quoteid."','".$serviceid."','".$no."','".$count."','".$unit_price."','".$discount."','".$description."','".$margin."')");  
+			return $itogo;
+		}
+		else
+		{
+			return 0;
+		}	
+	}
+			
 	function gen_uuid2() {
 		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
 			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
@@ -206,26 +273,107 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		);
 	}
 
-
-
+	function CreateTripsFromPOT(Vtiger_Request $request) 
+	{
+	
+		global $adb;
+		$recordid=$request->get("recordid");
+		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_timetable WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_timetable.timetableid AND vtiger_timetable.cf_potentials_id='".$recordid."' LIMIT 100");
+		$res_cnt = $adb->num_rows($relatedlistproj);		
+		if($res_cnt > 0) {
+			$onepay=true;
+			for($i=0;$i<$res_cnt;$i++) 
+			{
+				$no++;
+				$timetableid = $adb->query_result($relatedlistproj,$i,"timetableid");		
+				$recordModel = Vtiger_Record_Model::getInstanceById($timetableid, "Timetable");	
+				$childrens=$recordModel->get("childrens");//количество
+				$trips=$recordModel->get("trips");//количество поездок
+				$name=$recordModel->get("name");
+				$time=$recordModel->get("time");
+				$where_address=$recordModel->get("where_address");					
+				$childrens_age=$recordModel->get("childrens_age");//возраст детей
+				$duration=$recordModel->get("duration");//Длительность маршрута (мин)
+				$scheduled_wait_where=$recordModel->get("scheduled_wait_where");//Запланированное ожидание в точке Куда (мин)  
+				$scheduled_wait_from=$recordModel->get("scheduled_wait_from");//Запланированное ожидание в точке Откуда (мин) 
+				$shedAll=$scheduled_wait_where+$scheduled_wait_from;
+				$date=$recordModel->get("date");	
+				$insurances=$recordModel->get("insurances");	
+				$description="Маршрут: ".$name." - ".$where_address.". Количество поездок: $trips";
+				$potentialid=$recordModel->get("cf_potentials_id");
+				
+				$listCalendar=explode(",",$date);
+			
+				foreach ($listCalendar as $dateRow)
+				{
+					if ($dateRow!="")
+					{
+						$moduleName="Trips";
+						$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
+						$recordModel->set('mode', '');
+						$recordModel->set("name", $name);
+						$recordModel->set("where_address", $where_address);
+						$recordModel->set("time", $time);
+						$recordModel->set("date", date("Y-m-d",strtotime($dateRow)));
+						$recordModel->set("duration", $duration);	
+						$recordModel->set("distance", $distance);	
+						$recordModel->set("childrens", $childrens);			
+						$recordModel->set("cf_timetable_id_display", $timetableid);	
+						$recordModel->set("trips_status", "Appointed");			
+						$recordModel->set("scheduled_wait_from", $scheduled_wait_from);
+						$recordModel->set("not_scheduled_wait_from", $not_scheduled_wait_from);	
+						$recordModel->set("scheduled_wait_where", $scheduled_wait_where);
+						$recordModel->set("not_scheduled_wait_where", $not_scheduled_wait_where);
+						$recordModel->set("cf_1220", $cf_1220);
+						$recordModel->set("cf_1224", $potentialid);	
+						$recordModel->set("attendant_income", 0);
+						$recordModel->set("trips_contact", $request->get("contact_id"));
+						$recordModel->save();  
+						$tripid=$recordModel->getId();
+						$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$recordid."','Potentials','".$tripid."','Timetable')"); 
+					}
+				}
+			}
+		}
+		header("location: ?module=Potentials&view=Detail&record=".$recordid);
+		exit;
+	}
+	
 	function CreateInvoiceFromPOT(Vtiger_Request $request) 
 	{
+		global $adb;
+		global $url_api;
+		global $url_username;
+		global $url_password;
+		global $$url_back_pay;
+		
 		$record=$request->get("quoteid");
-			
+
 		$recordModel = Vtiger_Record_Model::getInstanceById($record, "Quotes");	
 		$potential_id=$recordModel->get("potential_id");
 		$contactid=$recordModel->get("contact_id");
 		$hdnGrandTotal=$recordModel->get("hdnGrandTotal");
 		
-		global $adb;
-		global $url_api;
-		global $url_username;
-		global $url_password;
+		$subject=$recordModel->get("subject");
+		$adb->pquery("UPDATE vtiger_quotes SET quotestage='Accepted' WHERE quotesid = '".$record."' LIMIT 1");
+		
+		/* 
+		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_timetable WHERE cf_potentials_id='".$potential_id."' LIMIt 100");
+		$res_cnt = $adb->num_rows($relatedlistproj);		
+		if($res_cnt > 0) 
+		{
+			for($i=0;$i<$res_cnt;$i++) 
+			{
+				$timetableid = $adb->query_result($relatedlistproj,$i,"timetableid");
+				$adb->pquery("UPDATE vtiger_crmentity SET deleted='1' WHERE crmid = '".$timetableid."' LIMIT 1");
+			}
+		} 
+		/**/
 
 		$url = $url_api;
 		$username = $url_username;
 		$password =  $url_password;
-	
+		
 		$ch = curl_init($url);
 
 		$data = array(
@@ -236,9 +384,9 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 			'capture' => true,
 			'confirmation' => array(
 				'type' => 'redirect',
-				'return_url' => 'http://ya.ru',
+				'return_url' => 'http://ya.ru',//$url_back_pay,
 			),
-			'description' => 'Заказ drive №1',
+			'description' => 'Заказ drive №2',
 			'metadata' => array(
 				'order_id' => 1,
 			)
@@ -263,45 +411,39 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		}
 		
 		$response2=json_decode($response);
-
-		
 		$url=$response2->confirmation->confirmation_url;
-		
 		$id=$response2->id;
 
+		
 		$moduleName="Invoice";
 		$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
 		$recordModel->set('mode', '');
-		$recordModel->set("subject", "subject");
+		$recordModel->set("subject", $subject);
 		$recordModel->set("potential_id", $potential_id);
 		$recordModel->set("contact_id", $contactid);
 		$recordModel->set("invoicestatus", "Sent");
 		$recordModel->set("hdnGrandTotal", $hdnGrandTotal);
 		$recordModel->set("hdnSubTotal", $hdnGrandTotal);
-		
+		$recordModel->set("online_payment", $url);
+
 		$recordModel->save();  
 		$invoice=$recordModel->getId();
 		
-		$adb->pquery("UPDATE vtiger_invoice SET subtotal='".$hdnGrandTotal."',total='".$hdnGrandTotal."' WHERE invoiceid = '".$invoice."' LIMIT 1");
-				
+		$adb->pquery("UPDATE vtiger_invoice SET subtotal='".$hdnGrandTotal."',total='".$hdnGrandTotal."' WHERE invoiceid = '".$invoice."' LIMIT 1");			
 		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_inventoryproductrel WHERE id='".$record."' LIMIt 100");
 		$res_cnt = $adb->num_rows($relatedlistproj);		
 		if($res_cnt > 0) {
-			
 			$onepay=true;
 			for($i=0;$i<$res_cnt;$i++) 
 			{
 				$no++;
-
 				$productid = $adb->query_result($relatedlistproj,$i,"productid");	
 				$sequence_no = $adb->query_result($relatedlistproj,$i,"sequence_no");
 				$quantity = $adb->query_result($relatedlistproj,$i,"quantity");
 				$listprice = $adb->query_result($relatedlistproj,$i,"listprice");
 				$comment = $adb->query_result($relatedlistproj,$i,"comment");
 				$margin = $adb->query_result($relatedlistproj,$i,"margin");
-				
 				$adb->pquery("insert into vtiger_inventoryproductrel (id,productid,sequence_no,quantity,listprice,comment,margin) VALUES ('".$invoice."','".$productid."','".$sequence_no."','".$quantity."','".$listprice."','".$comment."','".$margin."')");  
-			
 			}
 		}
 
@@ -315,28 +457,31 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		$recordModel->set("type_payment", "Online payment");
 		$recordModel->set("amount", $hdnGrandTotal);
 		$recordModel->set("spstatus", "Scheduled");
-		
 		$recordModel->set("description", $url);
-		$recordModel->set("pay_details", $id);
-		
-		
+		$recordModel->set("pay_details", $id);	
 		$recordModel->save();  
 		$pay=$recordModel->getId();
-		
+
+		$adb->pquery("UPDATE vtiger_potential SET sales_stage='Proposal or Price Quote' WHERE potentialid = '".$potential_id."' LIMIT 1");
 		header("location:?module=Invoice&view=Detail&record=".$invoice."");
-		exit;
-		
+		exit;	
 	}
 	
 	function CreateQFromPOT(Vtiger_Request $request) 
 	{
 		global $adb; 
-		$record=$request->get("leadid");
+	
+		$record=$request->get("leadid");			
+		$recordModelPot = Vtiger_Record_Model::getInstanceById($record, "Potentials");	
+		$contactid=$recordModelPot->get("contact_id");
+		$recordModelContact = Vtiger_Record_Model::getInstanceById($contactid, "Contacts");	
+		$contactFIO=$recordModelContact->get("firstname")." ".$recordModelContact->get("lastname");
+		
 		$moduleName="Quotes";
 		$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
 		$modelData = $recordModel->getData();
 		$recordModel->set('mode', '');
-		$recordModel->set("subject", "subject");
+		$recordModel->set("subject", $contactFIO);
 		$recordModel->set("potential_id", $record);
 		$recordModel->set("contact_id", $contactid);
 		$recordModel->set("quotestage", "Created");
@@ -345,17 +490,18 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 
 		if ($record>0)
 		{
-			$priceMonth=5000; //выгрузить значения из базы-услуги
-			$priceOneTrip=250;
+			$priceMonth=$this->getInvService(65);//5000; //выгрузить значения из базы-услуги
+			$priceOneTrip=$this->getInvService(25);;//250;
 					
-			$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_timetable WHERE cf_potentials_id='".$record."' LIMIt 100");
+			$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_timetable WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_timetable.timetableid AND vtiger_timetable.cf_potentials_id='".$record."' LIMIt 100");
 			$res_cnt = $adb->num_rows($relatedlistproj);		
-			if($res_cnt > 0) {
-				
+			if($res_cnt > 0) 
+			{
 				$onepay=true;
 				for($i=0;$i<$res_cnt;$i++) 
 				{
 					$no++;
+					
 					$timetableid = $adb->query_result($relatedlistproj,$i,"timetableid");		
 					$recordModel = Vtiger_Record_Model::getInstanceById($timetableid, "Timetable");	
 					$childrens=$recordModel->get("childrens");//количество
@@ -369,39 +515,41 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					$shedAll=$scheduled_wait_where+$scheduled_wait_from;
 					$date=$recordModel->get("date");	
 					$insurances=$recordModel->get("insurances");	
+					$timetable_discount=$recordModel->get("timetable_discount");
 					
 					$description="Маршрут: ".$name." - ".$where_address.". Количество поездок: $trips";
+					$tripsAll=$tripsAll+$trips;
 					
 					$count=1;
 					if ($childrens==1)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==2)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,20,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,20,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==3)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,21,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,21,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==4)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,22,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,22,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					else
 					{
-						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 
 					if ($shedAll>0)
 					{
-						$itogoPrice4=$this->setInvService($quoteid,23,$no,$trips*$shedAll,$description);
+						$itogoPrice4=$this->setInvService($quoteid,23,$no,$trips*$shedAll,$description,$timetable_discount);
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice4;
 					}
 
@@ -409,7 +557,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					$countGO++;
 				
 					$no++;
-					$this->setInvService($quoteid,24,$no,0,"");
+					$this->setInvService($quoteid,24,$no,0,"",0);
 
 					$no++;
 					$datestrarr=explode(",",$date);
@@ -425,13 +573,12 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					
 					if ($insurances>0)
 					{
-						$itogoPrice1=$this->setInvService($quoteid,26,$no,$insurances,$description); //Страховка $insurances
+						$itogoPrice1=$this->setInvService($quoteid,26,$no,$insurances,$description,0); //Страховка $insurances
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice1;
 						$no++;
 					}	
 
 					$adb->pquery("UPDATE vtiger_timetable SET cf_nrl_contacts580_id='".$contactid."' WHERE timetableid = '".$timetableid."' LIMIT 1");
-					//$adb->pquery("UPDATE vtiger_timetable SET cf_potentials_id='".$potid."' WHERE timetableid = '".$timetableid."' LIMIT 1");
 					$adb->pquery("UPDATE vtiger_timetable SET cf_quotes_id='".$quoteid."' WHERE timetableid = '".$timetableid."' LIMIT 1");	
 				}
 				
@@ -448,19 +595,22 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 						
 						if ($rceLimitMonth=="Да")
 						{
-							$itogoPrice1=$this->setInvService($quoteid,65,$no,1,$descriptionSO); //сервисный сбор
+							$itogoPrice1=$this->setInvService($quoteid,65,$no,1,$descriptionSO,0); //сервисный сбор
 						}
 						else
 						{
-							$itogoPrice1=$this->setInvService($quoteid,25,$no,$k2,$descriptionSO); //сервисный сбор
+							$itogoPrice1=$this->setInvService($quoteid,25,$no,$k2,$descriptionSO,0); //сервисный сбор
 						}
 						$no++;
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice1;
 					}
 				}
 			}
-			$adb->pquery("UPDATE vtiger_quotes SET subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
 		}
+		
+		$adb->pquery("UPDATE vtiger_potential SET sales_stage='Value Proposition' WHERE potentialid = '".$record."' LIMIT 1");
+		$adb->pquery("UPDATE vtiger_quotes SET subject='".$contactFIO." - ".$tripsAll."', subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
+		
 		header("location: ?module=Quotes&view=Detail&record=".$quoteid);
 		exit;
 	}
@@ -468,14 +618,22 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 	function CreateQ(Vtiger_Request $request) 
 	{
 		global $adb; 
-		
-		$priceMonth=5000;//сделать выгрузку из бд-услуги
-		$priceOneTrip=250;
-		
+
+		$priceMonth=$this->getInvService(65);//5000; //выгрузить значения из базы-услуги
+		$priceOneTrip=$this->getInvService(25);;//250;
+
 		$monthStr=array("Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь");
 		
 		$leadid=$request->get("leadid");
 		$record=$request->get("record");
+
+		$recordModelPot = Vtiger_Record_Model::getInstanceById($record, "Potentials");	
+		$contactid=$recordModelPot->get("contact_id");
+		
+		$recordModelContact = Vtiger_Record_Model::getInstanceById($contactid, "Contacts");	
+		$contactFIO=$recordModelContact->get("firstname")." ".$recordModelContact->get("lastname");
+		
+		
 		$moduleName="Quotes";
 		
 		$termconditionsql = $adb->pquery("SELECT tandc FROM  vtiger_inventory_tandc WHERE type='Quotes'  LIMIT 1");
@@ -503,7 +661,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 
 		if ($record>0)
 		{
-			$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_timetable WHERE cf_leads_id='".$leadid."' LIMIt 100");
+			$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_timetable WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_timetable.timetableid AND vtiger_timetable.cf_leads_id='".$leadid."' LIMIt 100");
 			$res_cnt = $adb->num_rows($relatedlistproj);		
 			if($res_cnt > 0) {
 				
@@ -524,39 +682,41 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					$shedAll=$scheduled_wait_where+$scheduled_wait_from;
 					$date=$recordModel->get("date");	
 					$insurances=$recordModel->get("insurances");	
-					
+					$timetable_discount=$recordModel->get("timetable_discount");
 					$description="Маршрут: ".$name." - ".$where_address.". Количество поездок: $trips";
+					
+					$tripsAll=$tripsAll+$trips;
 					
 					$count=1;
 					if ($childrens==1)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==2)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,20,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,20,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==3)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,21,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,21,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					elseif ($childrens==4)
 					{
-						$itogoPrice3=$this->setInvService($quoteid,22,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,22,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 					else
 					{
-						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description);  //сопровождение одного ребенка
+						$itogoPrice3=$this->setInvService($quoteid,14,$no,$trips*$duration,$description,$timetable_discount);  //сопровождение одного ребенка
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice3;
 					}
 
 					if ($shedAll>0)
 					{
-						$itogoPrice4=$this->setInvService($quoteid,23,$no,$trips*$shedAll,$description);
+						$itogoPrice4=$this->setInvService($quoteid,23,$no,$trips*$shedAll,$description,0);
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice4;
 					}
 
@@ -564,7 +724,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					$countGO++;
 				
 					$no++;
-					$this->setInvService($quoteid,24,$no,0,"");
+					$this->setInvService($quoteid,24,$no,0,"",0);
 
 					$no++;
 					$datestrarr=explode(",",$date);
@@ -580,13 +740,15 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 					
 					if ($insurances>0)
 					{
-						$itogoPrice1=$this->setInvService($quoteid,26,$no,$insurances,$description); //Страховка $insurances
+						$itogoPrice1=$this->setInvService($quoteid,26,$no,$insurances,$description,0); //Страховка $insurances
 						$no++;
 					}	
-
+		
 					$adb->pquery("UPDATE vtiger_timetable SET cf_nrl_contacts580_id='".$contactid."' WHERE timetableid = '".$timetableid."' LIMIT 1");
 					$adb->pquery("UPDATE vtiger_timetable SET cf_potentials_id='".$record."' WHERE timetableid = '".$timetableid."' LIMIT 1");
 					$adb->pquery("UPDATE vtiger_timetable SET cf_quotes_id='".$quoteid."' WHERE timetableid = '".$timetableid."' LIMIT 1");	
+					
+					$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$record."','Potentials','".$timetableid."','Timetable')"); 
 				}
 
 				foreach ($mas as $a=>$k)
@@ -600,19 +762,21 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 						
 						if ($rceLimitMonth=="Да")
 						{
-							$itogoPrice1=$this->setInvService($quoteid,65,$no,1,$descriptionSO); //сервисный сбор
+							$itogoPrice1=$this->setInvService($quoteid,65,$no,1,$descriptionSO,0); //сервисный сбор
 						}
 						else
 						{
-							$itogoPrice1=$this->setInvService($quoteid,25,$no,$k2,$descriptionSO); //сервисный сбор
+							$itogoPrice1=$this->setInvService($quoteid,25,$no,$k2,$descriptionSO,0); //сервисный сбор
 						}
 						$no++;
 						$itogoPriceALL=$itogoPriceALL+$itogoPrice1;
 					}
 				}
 			}
-			$adb->pquery("UPDATE vtiger_quotes SET subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
+			$adb->pquery("UPDATE vtiger_quotes SET  subject='".$contactFIO." ".$tripsAll."', subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
 		}
+		
+		$adb->pquery("UPDATE vtiger_potential SET sales_stage='Value Proposition' WHERE potentialid = '".$record."' LIMIT 1");
 		header("location: ?module=Quotes&view=Detail&record=".$quoteid);
 		exit;
 	}

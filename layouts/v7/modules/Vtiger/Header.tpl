@@ -125,10 +125,16 @@
 			Координаты1: <input type="text" id="XY1" value="" />
 			Координаты2: <input type="text" id="XY2" value="" />
 			</div>
-			<input type="button" value="save" onclick="setparam()" /> <input type="button" value="cencel" onclick="cancel()" />
+			{*<input type="button" value="save" onclick="setparam()" /> <input type="button" value="cencel" onclick="cancel()" />*}
+			<div id="mapcontainer" style="width: 100%; height: 100%">
 			<div id="map" style="width: 100%; height: 100%"></div>
+			</div>
 		</div>
 		
+		<div id="mapBlockGetCoordinat">
+			<input type="button" value="cencel" onclick="cancel()" />
+			<div id="mapCoordinat" style="width: 100%; height: 100%"></div>
+		</div>
 		
 		<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
 		</script>

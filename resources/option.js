@@ -11,6 +11,7 @@ $.urlParam = function(name){
 function cancel()
 {
 	$("#mapBlock").hide();
+	$("#mapBlockGetCoordinat").hide();
 }
 
 function closePanel(namePanel)
@@ -33,6 +34,16 @@ function addPot(recordId)
 		document.location.href='index.php?module=Potentials&action=Convert&mode=CreateQFromPOT&leadid='+recordId;
 	}
 }
+
+
+function addTrips(recordId)
+{
+	if (window.confirm("Создать Поездки?")) { 
+		document.location.href='index.php?module=Potentials&action=Convert&mode=CreateTripsFromPOT&recordid='+recordId;
+	}
+}
+
+
 
 function selectRowAddr(id,name)
 {
@@ -72,8 +83,8 @@ function startSearch(ymaps,dataval,e)
 function setparam()
 {
 	let num=$("#idblock").val();
-	let startpoint=$("#startpoint").val();
-	let endpoint=$("#endpoint").val();	
+	let endpoint=$("#startpoint").val();
+	let startpoint=$("#endpoint").val();	
 	let distanceNameId=$("#distance_id").val();
 	let durationNameId=$("#duration_id").val();
 	let distance=$("#distance").val();
@@ -126,158 +137,15 @@ function searchYndexData(e)
 
 var clearid="";
 
-// В данном примере показано, как получить информацию о построенном маршруте,
-// а также изменить его внешний вид.
-ymaps.ready(function () {	
-	  function getAddress(coords) {
-        ymaps.geocode(coords).then(function (res) {
-            var firstGeoObject = res.geoObjects.get(0);
-			console.log("Адрес: "+firstGeoObject.getAddressLine());
-        });
-    }
-
-   var buttonEditor = new ymaps.control.Button({
-        data: { content: "Режим редактирования" }
-    });
-
-    buttonEditor.events.add("select", function () {
-        multiRoute.editor.start({
-            addWayPoints: true,
-            removeWayPoints: true
-        });
-    });
-
-    buttonEditor.events.add("deselect", function () {
-        // Выключение режима редактирования.
-        multiRoute.editor.stop();
-    });
-	
-  var myMap = new ymaps.Map('map', {
-      center: [55.753994, 37.622093],
-      zoom: 9,
-      // Добавление панели маршрутизации на карту.
-      controls: ['routePanelControl',buttonEditor]
-  });
-  
-  myMap.controls
-        // Кнопка изменения масштаба.
-        .add('zoomControl', { left: 5, top: 5 });
-
-  // Получение ссылки на панель.
-  var control = myMap.controls.get('routePanelControl');
-
-
-  control.options.set({
-    // Список всех опций см. в справочнике.  
-	Width: '600px',
-    maxWidth: '600px',
-    float: 'right'
-  });
- 
-	
-  control.routePanel.options.set({
-    // Типы маршрутизации, которые будут отображаться на панели.
-    // Пользователи смогут переключаться между этими типами.
-		types: {
-		   auto: true,
-		   pedestrian: false,
-		   // Добавление на панель
-		   // значка «такси».
-		   taxi: false
-		}
-		/**/
-	});
-
-    // Получение объекта, описывающего построенные маршруты.
-    var multiRoutePromise = control.routePanel.getRouteAsync();
-  
-    multiRoutePromise.then(function(multiRoute) {		
-    //  Подписка на событие получения данных маршрута от сервера.
-    multiRoute.model.events.add('requestsuccess', function() {
-		var test= multiRoute.getBounds();
-		var yandexWayPoint1 = multiRoute.getWayPoints().get(0).properties.get('address');
-		var yandexWayPoint2 = multiRoute.getWayPoints().get(1).properties.get('address');
-		var yandexCoords1 = multiRoute.getWayPoints().get(0).properties.get('coords');
-		var yandexCoords2 = multiRoute.getWayPoints().get(1).properties.get('coords');
-
-		$("#startpoint").val(yandexWayPoint1);
-		$("#endpoint").val(yandexWayPoint2);
-		
-		 ymaps.geocode(yandexWayPoint1, {
-			results: 1
-		}).then(function (res) {
-				// Выбираем первый результат геокодирования.
-				var firstGeoObject = res.geoObjects.get(0);
-				   var coords = firstGeoObject.geometry.getCoordinates();
-					console.log(coords);
-					
-					document.getElementById("XY1").value=coords;
-					
-			
-		});
-
-		 ymaps.geocode(yandexWayPoint2, {
-			results: 1
-		}).then(function (res) {
-				// Выбираем первый результат геокодирования.
-				var firstGeoObject = res.geoObjects.get(0);
-				   var coords = firstGeoObject.geometry.getCoordinates();
-					console.log(coords);
-					document.getElementById("XY2").value=coords;
-		});
-
-		if ((test[0][0]>0)&&(test[0][1]>0))
-		{
-			console.log('Все данные геообъекта: '+test[0]+"++++"+test[1]); 
-		}
-		
-		// Ссылка на активный маршрут.
-		var activeRoute = multiRoute.getActiveRoute();
-		var activeBOUNDS= multiRoute.getBounds();
-
-		if (activeRoute) {
-			// Вывод информации об активном маршруте.
-			var distance=activeRoute.properties.get("distance").text;
-			var duration=activeRoute.properties.get("duration").text;
-
-			var type=activeRoute.properties.get("type");
-
-			if ((duration.indexOf("ч")>=0))
-			{
-				var timeweb=duration.split("ч");
-				var hour=parseInt(timeweb[0])*60;
-				var minute=parseInt(timeweb[1]);
-				var time=hour+minute;
-			//	alert(time);
-			}
-			else
-			{
-					var time=parseInt(duration);
-			}
-
-			document.getElementById("distance").value=distance; 
-			document.getElementById("duration").value=time;
-		}
-	});
-    multiRoute.options.set({
-      // Цвет метки начальной точки.
-      wayPointStartIconFillColor: "#B3B3B3",
-      // Цвет метки конечной точки.
-      wayPointFinishIconFillColor: "blue", 
-      // Внешний вид линий (для всех маршрутов).
-      routeStrokeColor: "00FF00"
-    });  
-  }, function (err) {
-    console.log(err); 
-  });
-});
 
 
 function saveCalendar()
 {
 	var recordFieldName=$("#recordFieldName").val();
 	var dateStr="";
+	var countday=0;
 	$('.selectDay').each(function (index, value) {	
+		countday++;
 		var day=$(value).html();
 		var year=$(value).closest(".blockCalendar").find(".currentYear").html(); 
 		var monthNum=$(value).closest(".blockCalendar").find(".monthNum").val(); 
@@ -286,6 +154,9 @@ function saveCalendar()
 		dateStr=day+"-"+monthNum+"-"+year+", "+dateStr;
 	});
 	
+	
+	//countday
+	$("#"+recordFieldName.replace('_date', '_trips')).val(countday);
 	$("#"+recordFieldName).val(dateStr.trim());
 	$("#openCalendar").hide();
 }
@@ -484,7 +355,200 @@ function monthDiff(dateFrom, dateTo) {
    (12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 }
 
-$(".openMap").live( "click", function() {
+function saveCoord(coordinat)
+{
+	$("#mapBlockGetCoordinat").hide();
+	$("#Contacts_editView_fieldName_attendant_coordinates").val(coordinat);
+}
+
+function selectContact(info1,info2)
+{
+	$("#mapBlockGetCoordinat").hide();
+	$("[name=cf_nrl_contacts59_id]").val(info1);
+	$("#cf_nrl_contacts59_id_display").val(info2);
+}
+
+function openMap(recordId,module)
+{
+	$.ajax({
+		url:'?module=Potentials&action=Convert&mode=getCoord&record='+recordId+'&mod='+module,
+		success: function(data) 
+		{
+			if (data=="error")
+			{
+				console.log("Ошибка");
+			}
+			else
+			{
+				var data3=data.split("||");
+				var data2=data3[1].split("::");
+				
+				var geokodelist=data3[0].split("##");
+				
+				ymaps.ready(function () {
+				var myMap = new ymaps.Map('mapCoordinat', {
+						center: [55.751574, 37.573856],
+						zoom: 9,
+						controls: ['smallMapDefaultSet']
+					}, {
+						searchControlProvider: 'yandex#search'
+					});
+					
+
+				  for (var i=0;i<=data2.length;i++)
+				  {
+						
+						if ((data2[i]!="")&&(data2[i]!=undefined))
+						{
+							let info=data2[i].split("##");
+							let coord=info[2].split(",");
+							  myPlacemark = new ymaps.Placemark([coord[0], coord[1]], { balloonContent: '<a href="?module=Contacts&view=Detail&record='+info[0]+'" target=="_blank">'+info[1]+'</a><br><a href="javascript:selectContact(\''+info[0]+'\',\''+info[1]+'\')">Выбрать</a>'}, {iconLayout: 'default#image',});
+							  myMap.geoObjects.add(myPlacemark);
+				   
+						}
+				  }
+				
+				  // myPlacemark = new ymaps.Placemark([55.753994, 37.622093], { balloonContent: 'Это красивая метка'}, {iconLayout: 'default#image',});
+				  // myPlacemark2 = new ymaps.Placemark([55.853994, 37.822093], { balloonContent: 'Это красивая метка'}, { preset: 'islands#redDotIcon' });
+				   //myMap.geoObjects.add(myPlacemark);
+
+
+				for (var i=0;i<=geokodelist.length;i++)
+				{			  
+					if (geokodelist[i]!="")
+					{
+						ymaps.geocode(geokodelist[i], {
+							results: 1
+						}).then(function (res) {
+								var firstGeoObject = res.geoObjects.get(0),
+									coords = firstGeoObject.geometry.getCoordinates(),
+									bounds = firstGeoObject.properties.get('boundedBy');
+
+								firstGeoObject.options.set('preset', 'islands#redDotIcon');
+								firstGeoObject.properties.set('iconCaption', firstGeoObject.getAddressLine());
+
+								// Добавляем первый найденный геообъект на карту.
+								myMap.geoObjects.add(firstGeoObject);
+						});
+					}
+				}
+				  
+				  
+				});
+			}
+		}
+	});
+	$("#mapBlockGetCoordinat").show();  
+
+}
+
+
+$("#Contacts_editView_fieldName_attendant_coordinates").live( "click", function() {
+	ymaps.ready(function () {
+    var myMap = new ymaps.Map('mapCoordinat', {
+            center: [55.751574, 37.573856],
+            zoom: 9,
+            // Также доступны наборы 'default' и 'largeMapDefaultSet'
+            // Элементы управления в наборах подобраны оптимальным образом
+            // для карт маленького, среднего и крупного размеров.
+            controls: ['smallMapDefaultSet']
+        }, {
+            searchControlProvider: 'yandex#search'
+        });
+		
+		
+	// Обработка события, возникающего при щелчке
+    // левой кнопкой мыши в любой точке карты.
+    // При возникновении такого события откроем балун.
+    myMap.events.add('click', function (e) {
+        if (!myMap.balloon.isOpen()) {
+            var coords = e.get('coords');
+            myMap.balloon.open(coords, {
+                contentHeader:'Координаты',
+                contentBody:'' +
+                    [
+                    coords[0].toPrecision(6),
+                    coords[1].toPrecision(6)
+                    ].join(', ') + '</p>',
+                contentFooter:'<a href="javascript:saveCoord(\''+ coords[0].toPrecision(6)+','+coords[1].toPrecision(6)+'\')">Сохранить</a>'
+            });
+        }
+        else {
+            myMap.balloon.close();
+        }
+    });	
+    });
+	$("#mapBlockGetCoordinat").show();  
+	}
+);
+
+
+$("#cf_nrl_contacts59_id_display").live("click", function() 
+	{
+		let recordId=0;
+		recordId=$("#recordId").val();
+		if (!recordId>0){ recordId=$.urlParam('record'); }
+		openMap(recordId,"trips");
+	}
+);
+
+$(".openUser").live("click", function() 
+	{
+		//let recordId=0;
+		//recordId=$("#recordId").val();
+		//if (!recordId>0){ recordId=$.urlParam('record'); }
+		openMap($("#recordId").val(),"potential");
+	}
+);
+
+
+$("#Contacts_editView_fieldName_attendant_coordinates").live("click", function() {
+	ymaps.ready(function () {
+    var myMap = new ymaps.Map('mapCoordinat', {
+            center: [55.751574, 37.573856],
+            zoom: 9,
+            // Также доступны наборы 'default' и 'largeMapDefaultSet'
+            // Элементы управления в наборах подобраны оптимальным образом
+            // для карт маленького, среднего и крупного размеров.
+            controls: ['smallMapDefaultSet']
+        }, {
+            searchControlProvider: 'yandex#search'
+        });
+		
+		
+	// Обработка события, возникающего при щелчке
+    // левой кнопкой мыши в любой точке карты.
+    // При возникновении такого события откроем балун.
+    myMap.events.add('click', function (e) {
+        if (!myMap.balloon.isOpen()) {
+            var coords = e.get('coords');
+            myMap.balloon.open(coords, {
+                contentHeader:'Координаты',
+                contentBody:'' +
+                    [
+                    coords[0].toPrecision(6),
+                    coords[1].toPrecision(6)
+                    ].join(', ') + '</p>',
+                contentFooter:'<a href="javascript:saveCoord(\''+ coords[0].toPrecision(6)+','+coords[1].toPrecision(6)+'\')">Сохранить</a>'
+            });
+        }
+        else {
+            myMap.balloon.close();
+        }
+    });
+	
+		
+    });
+	$("#mapBlockGetCoordinat").show();  
+}
+);
+
+
+
+$(".openMap").live( "click", function() 
+{
+	$("#mapcontainer").html('<div id="map" style="width: 100%; height: 100%"></div>');
+	
 	
 	let recordSelectField="",recordSelectField2="";
 	recordSelectField=$(this).closest('.relatedRecords').find("[data-fieldname=Timetable_duration]").attr("id");
@@ -500,7 +564,183 @@ $(".openMap").live( "click", function() {
 	}
 	$("#distance_id").val(recordSelectField2);
 	let num=$(this).closest('.relatedRecords').attr("data-row-no"); 
+	
 	$("#idblock").val(num);
+	
+	ymaps.ready(function () {	
+		  function getAddress(coords) {
+			ymaps.geocode(coords).then(function (res) {
+				var firstGeoObject = res.geoObjects.get(0);
+				console.log("Адрес: "+firstGeoObject.getAddressLine());
+			});
+		}
+
+
+	   var buttonEditor = new ymaps.control.Button({
+			data: { content: "Режим редактирования" },
+		   options: { visible:false, float: 'none', position: {left: '-5px', top: '-5px'} }
+		});
+	
+		buttonEditor.events.add("click", function () {
+			multiRoute.editor.start({
+				addWayPoints: true,
+				removeWayPoints: true
+			});
+		});
+
+	
+		buttonEditor.events.add("click", function () {
+			// Выключение режима редактирования.
+			multiRoute.editor.stop();
+		});
+		/**/
+		
+		
+		
+		 // Создаем кнопки для управления мультимаршрутом.
+		var trafficButton = new ymaps.control.Button({
+			data: { content: "Сохранить" },
+			options: {/*selectOnClick: true,/**/ width:"150",  maxWidth: [30, 100, 150]}
+		}),
+		viaPointButton = new ymaps.control.Button({
+			data: { content: "Закрыть" },
+			options: { /*selectOnClick: true/**/ }
+		});
+
+		viaPointButton.events.add('select', function () {
+			cancel();
+			
+			$("#map").remove();
+			//myMap.geoObjects.remove(myMap);
+		});
+
+		// Объявляем обработчики для кнопок.
+		trafficButton.events.add('select', function () {
+			setparam();
+		});
+
+
+
+	  var myMap = new ymaps.Map('map', {
+		  center: [55.753994, 37.622093],
+		  zoom: 9,
+		  // Добавление панели маршрутизации на карту.
+		  controls: ['routePanelControl',buttonEditor,trafficButton, viaPointButton]
+	  },{
+		   buttonMaxWidth: 300
+	  }); 
+	  
+	  myMap.controls
+			// Кнопка изменения масштаба.
+			.add('zoomControl', { left: 5, top: 0 });
+
+	  // Получение ссылки на панель.
+	  var control = myMap.controls.get('routePanelControl');
+
+
+	  control.options.set({
+		// Список всех опций см. в справочнике.  
+		Width: '600px',
+		maxWidth: '600px',
+		float: 'right'
+	  });
+	  
+	  control.routePanel.options.set({
+		// Типы маршрутизации, которые будут отображаться на панели.
+		// Пользователи смогут переключаться между этими типами.
+			types: {
+			   auto: true,
+			   pedestrian: false,
+			   // Добавление на панель
+			   // значка «такси».
+			   taxi: false
+			}
+			/**/
+		});
+
+		// Получение объекта, описывающего построенные маршруты.
+		var multiRoutePromise = control.routePanel.getRouteAsync();
+	  
+		multiRoutePromise.then(function(multiRoute) {		
+		//  Подписка на событие получения данных маршрута от сервера.
+		multiRoute.model.events.add('requestsuccess', function() {
+			var test= multiRoute.getBounds();
+			var yandexWayPoint1 = multiRoute.getWayPoints().get(0).properties.get('address');
+			var yandexWayPoint2 = multiRoute.getWayPoints().get(1).properties.get('address');
+			var yandexCoords1 = multiRoute.getWayPoints().get(0).properties.get('coords');
+			var yandexCoords2 = multiRoute.getWayPoints().get(1).properties.get('coords');
+
+			$("#startpoint").val(yandexWayPoint1);
+			$("#endpoint").val(yandexWayPoint2);
+			
+			 ymaps.geocode(yandexWayPoint1, {
+				results: 1
+			}).then(function (res) {
+					// Выбираем первый результат геокодирования.
+					var firstGeoObject = res.geoObjects.get(0);
+					   var coords = firstGeoObject.geometry.getCoordinates();
+						console.log(coords);
+						
+						document.getElementById("XY1").value=coords;
+						
+				
+			});
+
+			 ymaps.geocode(yandexWayPoint2, {
+				results: 1
+			}).then(function (res) {
+					// Выбираем первый результат геокодирования.
+					var firstGeoObject = res.geoObjects.get(0);
+					   var coords = firstGeoObject.geometry.getCoordinates();
+						console.log(coords);
+						document.getElementById("XY2").value=coords;
+			});
+
+			if ((test[0][0]>0)&&(test[0][1]>0))
+			{
+				console.log('Все данные геообъекта: '+test[0]+"++++"+test[1]); 
+			}
+			
+			// Ссылка на активный маршрут.
+			var activeRoute = multiRoute.getActiveRoute();
+			var activeBOUNDS= multiRoute.getBounds();
+
+			if (activeRoute) {
+				// Вывод информации об активном маршруте.
+				var distance=activeRoute.properties.get("distance").text;
+				var duration=activeRoute.properties.get("duration").text;
+
+				var type=activeRoute.properties.get("type");
+
+				if ((duration.indexOf("ч")>=0))
+				{
+					var timeweb=duration.split("ч");
+					var hour=parseInt(timeweb[0])*60;
+					var minute=parseInt(timeweb[1]);
+					var time=hour+minute;
+				//	alert(time);
+				}
+				else
+				{
+						var time=parseInt(duration);
+				}
+
+				document.getElementById("distance").value=distance; 
+				document.getElementById("duration").value=time;
+			}
+		});
+		multiRoute.options.set({
+		  // Цвет метки начальной точки.
+		  wayPointStartIconFillColor: "#B3B3B3",
+		  // Цвет метки конечной точки.
+		  wayPointFinishIconFillColor: "blue", 
+		  // Внешний вид линий (для всех маршрутов).
+		  routeStrokeColor: "00FF00"
+		});  
+	  }, function (err) {
+		console.log(err); 
+	  });
+	});
 	$("#mapBlock").show();  
 }
 );
