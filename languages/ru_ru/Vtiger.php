@@ -24,6 +24,9 @@ $languageStrings = array(
 	  'LBL_CHILDRENS_AGE' => 'Возраст детей',
 	  'LBL_PARKING_INFO' => 'Информация о парковке',
 	  'LBL_MAP' => 'Открыть карту',
+	  'Open Map' => 'Открыть карту',
+	  'Create Trips' => 'Создать поездки',
+	  'LBL_MAP' => 'Открыть карту',
 
 
 	'APPTITLE'                     => 'SalesPlatform Vtiger CRM'                  , // TODO: Review
