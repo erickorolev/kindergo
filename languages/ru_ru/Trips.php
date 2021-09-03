@@ -37,6 +37,7 @@ $languageStrings = array (
   'Performed' => 'Выполняется',
   'Completed' => 'Выполнена',
   'Canceled' => 'Отменена',
+  'Offered' => 'Предлагается',
   'Confirm' => 'Подтверждаю',
   'Late' => 'Опаздываю',
   'In place' => 'На месте',
