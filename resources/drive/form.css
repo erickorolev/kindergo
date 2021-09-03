@@ -1,3 +1,23 @@
+#messageTrip
+{
+	display:none;
+	position:fixed;
+	width:100%;
+	height:100%;
+	background:#11101059;
+	z-index:100000;
+	top:0px;
+	left:0px;
+}
+.mescontainer
+{
+	color:#FFF;
+	text-align:center;
+	padding:50px;
+	font-size:25px;
+	
+}
+
 .closePanelOpenCalendar
 {
 	text-align:right;

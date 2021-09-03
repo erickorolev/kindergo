@@ -136,6 +136,8 @@
 			<div id="mapCoordinat" style="width: 100%; height: 100%"></div>
 		</div>
 		
+		<div id="messageTrip"><div class="mescontainer">Дождитесь создания поездок</div></div>
+		
 		<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
 		</script>
 			

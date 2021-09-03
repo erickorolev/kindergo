@@ -38,9 +38,24 @@ function addPot(recordId)
 
 function addTrips(recordId)
 {
-	if (window.confirm("Создать Поездки?")) { 
-		document.location.href='index.php?module=Potentials&action=Convert&mode=CreateTripsFromPOT&recordid='+recordId;
-	}
+	$.ajax({
+		url:'?module=Potentials&action=Convert&mode=checkTrip&recordId='+recordId,
+		success: function(data) 
+		{
+			if (data==1)
+			{
+				if (window.confirm("Создать Поездки?")) { 
+					$("#messageTrip").show();
+					document.location.href='index.php?module=Potentials&action=Convert&mode=CreateTripsFromPOT&recordid='+recordId;
+				}
+			}
+			else
+			{
+				alert("Для создании поездок необходимо заполнить поля: ”Описание”, “Информация о парковке”, ”Ребенок 1");
+				return false;
+			}
+		}
+	});
 }
 
 

@@ -26,6 +26,7 @@ $languageStrings = array(
 	  'LBL_MAP' => 'Открыть карту',
 	  'Open Map' => 'Открыть карту',
 	  'Create Trips' => 'Создать поездки',
+	  'Create Quotes' => 'Создать КП',
 	  'LBL_MAP' => 'Открыть карту',
 
 

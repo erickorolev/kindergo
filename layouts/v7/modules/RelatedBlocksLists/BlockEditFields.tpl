@@ -129,8 +129,9 @@
    {*<span class='openMap' blockid='data-row-no'>{vtranslate('LBL_MAP')}</span>*}
    <input type="button" class='openMap' blockid='data-row-no' value="{vtranslate('LBL_MAP')}"/>
    
-    <input type="button" class='openUser' blockid='data-row-no' value="{vtranslate('LBL_MAP_VIEW_POINT')}"/>
-   
+  {*  
+  <input type="button" class='openUser' blockid='data-row-no' value="{vtranslate('LBL_MAP_VIEW_POINT')}"/>
+   *}
 	{if ($IS_MODULE_DELETABLE && $RELATED_RECORD_MODEL->getId() neq '') || $RELATED_RECORD_MODEL->getId() eq ''}
         <a class="relatedBtnDelete pull-right" data-rel-module="{$RELMODULE_NAME}" data-record-id="{$RELATED_RECORD_MODEL->getId()}" style="margin-right:25px; color: #0088cc">{vtranslate('LBL_DELETE')}</a>
     {/if}
