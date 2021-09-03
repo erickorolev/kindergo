@@ -1,3 +1,23 @@
+#messageTrip
+{
+	display:none;
+	position:fixed;
+	width:100%;
+	height:100%;
+	background:#11101059;
+	z-index:100000;
+	top:0px;
+	left:0px;
+}
+.mescontainer
+{
+	color:#FFF;
+	text-align:center;
+	padding:50px;
+	font-size:25px;
+	
+}
+
 .closePanelOpenCalendar
 {
 	text-align:right;
@@ -92,10 +112,10 @@
 {
 	overflow:auto;
 	display:none;
-	width:90%;
-	height:90%;
-	left:5%;
-	top:5%;
+	width:98%;
+	height:98%;
+	left:1%;
+	top:1%;
 	padding-bottom:20px;
 	z-index:1000000;
 	background:#CCC;
@@ -128,18 +148,43 @@
 	background:#EEE;
 }
 
-#mapBlock
+#mapCoordinat
 {
-	width:90%;
+	width:100%;
 	height:90%;
+}
+#mapBlockGetCoordinat
+{
+	width:98%;
+	height:98%;
 	background:#CCC;
 	position:fixed;
 	z-index:10000;
-	left:5%;
-	top:5%;
+	left:1%;
+	top:1%;
 	display:none;/**/
 }
 
+
+#mapBlock
+{
+	width:98%;
+	height:98%;
+	background:#CCC;
+	position:fixed;
+	z-index:10000;
+	left:1%;
+	top:1%;
+	display:none;/**/
+}
+
+input:read-only { 
+	background:#EEE;
+}
+
+textarea:read-only { 
+	background:#EEE;
+}
 
 #map
 {
@@ -148,10 +193,12 @@
 
 .openMap
 {
+	/*
 	padding-left:20px;
 	cursor:pointer;
 	text-decoration:underline;
 	color:blue;	
+	/**/
 }
 
 .fieldValue ymaps:first-child

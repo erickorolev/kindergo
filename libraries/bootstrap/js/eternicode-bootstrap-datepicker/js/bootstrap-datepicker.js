@@ -165,6 +165,8 @@
 			// Check if "de-DE" style date is available, if not language should
 			// fallback to 2 letter code eg "de"
 			var lang = o.language;
+			lang="ru";
+			//alert(lang);
 			if (!dates[lang]){
 				lang = lang.split('-')[0];
 				if (!dates[lang])

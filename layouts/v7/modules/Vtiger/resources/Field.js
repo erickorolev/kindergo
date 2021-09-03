@@ -255,7 +255,7 @@ Vtiger_Field_Js('Vtiger_Picklist_Field_Js',{},{
 	getUi : function() {
 		//added class inlinewidth
 		//SalesPlatform.ru begin
-			//var html = '<select class="select2 inputElement inlinewidth" name="'+ this.getName() +'" id="field_'+this.getModuleName()+'_'+this.getName()+'">';
+		var html = '<select class="select2 inputElement inlinewidth" name="'+ this.getName() +'" id="field_'+this.getModuleName()+'_'+this.getName()+'">';
 		var selectElement = $('<select class="select2 inputElement inlinewidth" name="'+ this.getName() +'" id="field_'+this.getModuleName()+'_'+this.getName()+'">');
 		var wrapper = $("<div>");
 		//SalesPlatform.ru end

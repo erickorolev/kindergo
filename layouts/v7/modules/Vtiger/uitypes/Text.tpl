@@ -25,9 +25,9 @@
         {/if}
         >
 	{* SalesPlatform.ru end *}
-    {$FIELD_MODEL->get('fieldvalue')}</textarea> 
+    {$FIELD_MODEL->get('fieldvalue')}</textarea>  
 {else}
-    <textarea rows="5" {if $FIELD_NAME  eq "date"}readonly{/if}  id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" data-fieldname="{$FIELD_NAME}" class="inputElement {if $FIELD_MODEL->isNameField()}nameField{/if}" name="{$FIELD_NAME}" {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}
+	<textarea rows="5" {if $FIELD_NAME  eq "date" || $FIELD_NAME  eq "Timetable_date"} readonly {/if}  id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" data-fieldname="{$FIELD_NAME}" class="inputElement {if $FIELD_MODEL->isNameField()}nameField{/if}" name="{$FIELD_NAME}" {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}
         {if $FIELD_INFO["mandatory"] eq true} data-rule-required="true" {/if}
         {if count($FIELD_INFO['validator'])}
             data-specific-rules='{ZEND_JSON::encode($FIELD_INFO["validator"])}'

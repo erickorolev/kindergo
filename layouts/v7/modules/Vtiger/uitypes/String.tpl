@@ -29,5 +29,8 @@
 		{if count($FIELD_INFO['validator'])}
 			data-specific-rules='{ZEND_JSON::encode($FIELD_INFO["validator"])}'
 		{/if}
+		
+		 {if $MODULE!="Leads"} {if (($FIELD_NAME  eq "name") || ($FIELD_NAME  eq "where_address") || ($FIELD_NAME  eq "trips")) }readonly{/if}  {/if}  
+		 
 		   />
 {/strip}
