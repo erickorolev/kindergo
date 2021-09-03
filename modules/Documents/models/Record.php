@@ -85,7 +85,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
                     }
                     while(ob_get_level()) {
                         ob_end_clean();
-                    }
+                    } 
                     $fileSize = filesize($filePath.$savedFile);
                     $fileSize = $fileSize + ($fileSize % 1024);
 
