@@ -410,7 +410,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 						$recordModel->set("cf_1224", $potentialid);	
 						$recordModel->set("attendant_income", 0);
 						//$recordModel->set("trips_contact", $request->get("contact_id"));
-						$recordModel->set("trips_status", "В ожидании"); 
+						$recordModel->set("trips_status", "Pending"); 
 						
 						
 						$recordModel->save();  
