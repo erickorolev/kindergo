@@ -23,7 +23,7 @@
   {assign var="FIELD_NAME" value=$FIELD_MODEL->getFieldName()}
 {/if}
 
-<input  {if $MODULE!="Leads"}{if $FIELD_NAME  eq "trips"}readonly{/if}{/if}  id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="inputElement" name="{$FIELD_NAME}" data-fieldname="{$FIELD_NAME}" 
+<input  {if $MODULE!="Leads"}{if $FIELD_NAME  eq "trips" || $FIELD_NAME  eq "duration" || $FIELD_NAME  eq "distance"}readonly{/if}{/if}  id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="inputElement" name="{$FIELD_NAME}" data-fieldname="{$FIELD_NAME}" 
 value="{$FIELD_VALUE}" {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}
 {if $FIELD_INFO["mandatory"] eq true} data-rule-required="true" {/if}
 {if count($FIELD_INFO['validator'])}

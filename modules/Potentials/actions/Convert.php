@@ -11,7 +11,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		 $this->exposeMethod('getCoord');	
 		 $this->exposeMethod('CreateTripsFromPOT');	
 		 $this->exposeMethod('checkTrip');	
-		 $this->exposeMethod('Test');
+		 
 	}
 	
 	public function process(Vtiger_Request $request) {
@@ -71,53 +71,6 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		}
 		exit;
 		//recordId
-	}
-	
-	function Test(Vtiger_Request $request)
-	{
-		global $adb;
-		
-	
-		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_trips WHERE vtiger_trips.trips_status='Completed' AND  vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_trips.tripsid  LIMIT 300");
-		$res_cnt = $adb->num_rows($relatedlistproj);		
-		if($res_cnt > 0) 
-		{ 	print '111';
-			for($i=0;$i<$res_cnt;$i++) 
-			{
-				$no++;
-				$tripsid = $adb->query_result($relatedlistproj,$i,"tripsid");		
-				$cf_nrl_contacts59_id = $adb->query_result($relatedlistproj,$i,"cf_nrl_contacts59_id");	
-				$attendant_income = $adb->query_result($relatedlistproj,$i,"attendant_income");	
-				$mas[$cf_nrl_contacts59_id][$tripsid]=$attendant_income;
-			}
-		}
-
-
-		foreach ($mas as $a=>$key)
-		{
-			$summ=0;
-			foreach ($key as $id=>$value)
-			{
-				$summ=$summ+$value;
-			}
-			$moduleName="SPPayments";
-			$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
-			$recordModel->set('mode', '');
-			$recordModel->set("pay_date", date("Y-m-d"));
-			$recordModel->set("pay_type", "Expense");
-			$recordModel->set("payer", $a);
-			$recordModel->set("amount", $summ);
-			$recordModel->set("type_payment", "Зарплата");
-			$recordModel->set("spstatus", "Scheduled");		
-			$recordModel->set("description", "Периуд оплаты");	
-			$recordModel->save();  
-			$tripid=$recordModel->getId();
-
-			foreach ($key as $id=>$value)
-			{
-				$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$id."','SPPayments','".$tripid."','Trips')");  
-			}
-		}
 	}
 	
 	function getCoord(Vtiger_Request $request)
@@ -375,7 +328,6 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 
 	function CreateTripsFromPOT(Vtiger_Request $request) 
 	{
-	
 		global $adb;
 		$recordid=$request->get("recordid");
 		
@@ -417,9 +369,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				$distance =$recordModel->get("distance");
 				 
 				
-				$insurances=$recordModel->get("insurances");//
-				
-				
+				$insurances=$recordModel->get("insurances");
 				$listCalendar=explode(",",$date);
 			
 				foreach ($listCalendar as $dateRow)
@@ -457,17 +407,17 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 						$recordModel->set("cf_1224", $potentialid);	
 						$recordModel->set("attendant_income", 0);
 						//$recordModel->set("trips_contact", $request->get("contact_id"));
-						$recordModel->set("trips_status", "Pending"); 
-						
+						$recordModel->set("trips_status", "В ожидании"); 
 						
 						$recordModel->save();  
 						$tripid=$recordModel->getId();
-						$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$recordid."','Potentials','".$tripid."','Timetable')"); 
+						
+						$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$recordid."','Potentials','".$tripid."','Timetable')");
+						$adb->pquery("insert into vtiger_crmentityrel (crmid,module,relcrmid,relmodule) VALUES ('".$timetableid."','Timetable','".$tripid."','Trips')"); 
 					}
 				}
 			}
-		}
-		//?module=Potentials&relatedModule=Trips&view=Detail&record=286&mode=showRelatedList&relationId=217&tab_label=Поездки&app=MARKETING
+		} 
 		header("location: ?module=Potentials&relatedModule=Trips&view=Detail&record=".$recordid."&mode=showRelatedList&tab_label=Поездки&app=MARKETING");
 		exit;
 	}
