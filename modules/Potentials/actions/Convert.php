@@ -38,8 +38,26 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 	{
 		global $adb;
 		
+		$findpay=false;
 		$find=true;
-		$recordId=$_REQUEST[recordId];//$request->get("recordId");
+		$recordId=$_REQUEST[recordId];//$request->get("recordId");	
+		
+		$relatedinvoice = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_invoice WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_invoice.invoiceid AND vtiger_invoice.potential_id='".$recordId."' LIMIt 100");
+		$res_cnt = $adb->num_rows($relatedinvoice);		
+		if($res_cnt > 0) 
+		{
+			for($i=0;$i<$res_cnt;$i++) 
+			{
+				$crmid = $adb->query_result($relatedinvoice,$i,"crmid");
+				$relatedpay = $adb->pquery("SELECT * FROM  sp_payments WHERE related_to='".$crmid."' AND spstatus='Executed' LIMIT 1");
+				$res_cnt_pay = $adb->num_rows($relatedpay);		
+				if($res_cnt_pay > 0) 
+				{
+					$findpay=true;	
+				}
+			}
+		}
+
 		$relatedlistproj = $adb->pquery("SELECT * FROM  vtiger_crmentity,vtiger_timetable WHERE vtiger_crmentity.deleted!='1' AND vtiger_crmentity.crmid=vtiger_timetable.timetableid AND vtiger_timetable.cf_potentials_id='".$recordId."' LIMIT 100");		
 		$res_cnt = $adb->num_rows($relatedlistproj);		
 			if($res_cnt > 0) 
@@ -61,6 +79,11 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				}
 			}
 		
+		if ($findpay==false) 
+		{			
+			print 3;
+		}
+		else
 		if ($find==false)
 		{			
 			print 2;

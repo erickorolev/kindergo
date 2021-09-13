@@ -42,6 +42,12 @@ function addTrips(recordId)
 		url:'?module=Potentials&action=Convert&mode=checkTrip&recordId='+recordId,
 		success: function(data) 
 		{
+			if (data==3)
+			{
+				alert("Счет должен быть оплачен по выставленному КП по этой сделке!");
+				return false;
+			}
+			else
 			if (data==1)
 			{
 				if (window.confirm("Создать Поездки?")) { 

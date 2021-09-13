@@ -81,11 +81,15 @@
                                 <li class="divider"></li>	
                                 {else}
                                 <li id="{$MODULE_NAME}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
+									{if $DETAIL_VIEW_LINK->getLabel()!="Создать Предложение"}
+									
                                     {if $DETAIL_VIEW_LINK->getUrl()|strstr:"javascript"} 
                                         <a href='{$DETAIL_VIEW_LINK->getUrl()}'>{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE_NAME)}</a>
                                     {else}
                                         <a href='{$DETAIL_VIEW_LINK->getUrl()}&app={$SELECTED_MENU_CATEGORY}' >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE_NAME)}</a>
                                     {/if}
+									
+									{/if}
                                 </li>
                             {/if}
                         {/foreach}

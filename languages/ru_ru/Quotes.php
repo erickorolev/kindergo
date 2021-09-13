@@ -8,6 +8,8 @@
  * All Rights Reserved.
  ************************************************************************************/
 $languageStrings = array(
+	'Create Invoice'               => 'Создать счет',
+	'Создать Счет'               => 'Создать доп.счет',
 	'SINGLE_Quotes'                => 'Предложение'      , 
 	'LBL_EXPORT_TO_PDF'            => 'Экспорт в PDF:'       , 
 	'LBL_SEND_MAIL_PDF'            => 'Отправить PDF по Email:'         , // TODO: Review
