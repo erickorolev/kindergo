@@ -379,8 +379,6 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				$insurances=$recordModel->get("insurances");	
 				$description="Маршрут: ".$name." - ".$where_address.". Количество поездок: $trips";
 				$potentialid=$recordModel->get("cf_potentials_id");
-				
-				
 				$cf_timetable_id=$recordModel->get("cf_timetable_id");//расписание
 				$trips_contact=$recordModelPot->get("contact_id");//клиент из сделки
 				$parking_info=$recordModel->get("parking_info");//Парковка
@@ -716,8 +714,10 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 		}
 		
 		$adb->pquery("UPDATE vtiger_potential SET sales_stage='Value Proposition' WHERE potentialid = '".$record."' LIMIT 1");
-		$adb->pquery("UPDATE vtiger_quotes SET subject='".$contactFIO." - ".$tripsAll."', subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
+		$adb->pquery("UPDATE vtiger_crmentity SET label='".$contactFIO." - ".$tripsAll."' WHERE crmid = '".$record."' LIMIT 1");
 		
+		$adb->pquery("UPDATE vtiger_quotes SET subject='".$contactFIO." - ".$tripsAll."', subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
+		$adb->pquery("UPDATE vtiger_crmentity SET label='".$contactFIO." - ".$tripsAll."' WHERE crmid = '".$quoteid."' LIMIT 1");	
 		header("location: ?module=Quotes&view=Detail&record=".$quoteid);
 		exit;
 	}
@@ -882,9 +882,11 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				}
 			}
 			$adb->pquery("UPDATE vtiger_quotes SET  subject='".$contactFIO." - ".$tripsAll."', subtotal='".$itogoPriceALL."',total='".$itogoPriceALL."',pre_tax_total='".$itogoPriceALL."' WHERE quoteid = '".$quoteid."' LIMIT 1");
+			$adb->pquery("UPDATE vtiger_crmentity SET label='".$contactFIO." - ".$tripsAll."' WHERE crmid = '".$quoteid."' LIMIT 1");	
 		}
 		
 		$adb->pquery("UPDATE vtiger_potential SET potentialname='".$contactFIO." - ".$tripsAll."', sales_stage='Value Proposition' WHERE potentialid = '".$record."' LIMIT 1");
+		$adb->pquery("UPDATE vtiger_crmentity SET label='".$contactFIO." - ".$tripsAll."' WHERE crmid = '".$record."' LIMIT 1");
 		
 		header("location: ?module=Quotes&view=Detail&record=".$quoteid); 
 		exit;
