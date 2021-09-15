@@ -129,7 +129,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 			}
 		}
 		
-		$relatedlistproj = $adb->pquery("SELECT crmid,firstname,lastname,attendant_coordinates FROM  vtiger_crmentity,vtiger_contactdetails,vtiger_contactscf WHERE vtiger_contactdetails.contactid=vtiger_crmentity.crmid AND vtiger_contactdetails.contactid=vtiger_contactscf.contactid AND vtiger_contactdetails.attendant_coordinates!=''  AND vtiger_contactdetails.type='Attendant' AND vtiger_contactdetails.attendant_status='Active' LIMIt 200");
+		$relatedlistproj = $adb->pquery("SELECT crmid,firstname,lastname,attendant_coordinates FROM  vtiger_crmentity,vtiger_contactdetails,vtiger_contactscf WHERE vtiger_contactdetails.contactid=vtiger_crmentity.crmid AND vtiger_crmentity.deleted!='1' AND vtiger_contactdetails.contactid=vtiger_contactscf.contactid AND vtiger_contactdetails.attendant_coordinates!=''  AND vtiger_contactdetails.type='Attendant' AND vtiger_contactdetails.attendant_status='Active' LIMIt 300");
 		$res_cnt = $adb->num_rows($relatedlistproj);		
 		if($res_cnt > 0) {
 			for($i=0;$i<$res_cnt;$i++) 
