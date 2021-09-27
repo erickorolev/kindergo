@@ -53,6 +53,7 @@ $languageStrings = array (
   'LBL_IMAGES_LIST' => 'Ссылки на документы',
   'LBL_FROM_COORDINATES' => 'Откуда координаты',
   'LBL_WHERE_COORDINATES' => 'Куда координаты',
+  'LBL_NOT_SCHEDULED_WAIT_REASON' => 'Причина незапланированного ожидания',
   
 );
 
