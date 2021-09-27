@@ -88,6 +88,7 @@ $languageStrings = array(
     'LBL_ATTENDANT_COORDINATES' => 'Координаты адреса',
     'LBL_PARKING_INFO' => 'Информация о парковке',
     'LBL_CURATOR_PHONE' => 'Телефон куратора',
+    'LBL_ATTENDANT_SCHEDULE' => 'График работы',
 );
 $jsLanguageStrings = array(
     'LBL_SYNC_BUTTON'              => 'Синхронизировать',
