@@ -138,6 +138,6 @@
 		
 		<div id="messageTrip"><div class="mescontainer">Дождитесь создания поездок</div></div>
 		
-		<script src="https://api-maps.yandex.ru/2.1/?apikey=57e07453-d5ea-4c0c-8414-af55ec871863&lang=ru-RU" type="text/javascript">
+		<script src="https://api-maps.yandex.ru/2.1/?apikey=90c1cdc7-f43b-4d10-b2d6-039db209370e&lang=ru-RU" type="text/javascript">
 		</script>
 			
