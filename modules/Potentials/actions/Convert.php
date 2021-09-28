@@ -138,7 +138,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				$firstname = $adb->query_result($relatedlistproj,$i,"firstname");	
 				$lastname = $adb->query_result($relatedlistproj,$i,"lastname");	
 				$coordinat = $adb->query_result($relatedlistproj,$i,"attendant_coordinates");
-				$attendant_schedule = $adb->query_result($relatedlistproj,$i,"attendant_schedule");					
+				$attendant_schedule = str_replace("\n","<br>",$adb->query_result($relatedlistproj,$i,"attendant_schedule"));					
 				$line.=$crmid."##".$firstname." ".$lastname."##".$coordinat."##".str_replace("::","",$attendant_schedule)."::";
 			}
 		}
