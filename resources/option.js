@@ -423,7 +423,7 @@ function openMap(recordId,module)
 						{
 							let info=data2[i].split("##");
 							let coord=info[2].split(",");
-							  myPlacemark = new ymaps.Placemark([coord[0], coord[1]], { balloonContent: '<a href="?module=Contacts&view=Detail&record='+info[0]+'" target=="_blank">'+info[1]+'</a><br><a href="javascript:selectContact(\''+info[0]+'\',\''+info[1]+'\')">Выбрать</a>'}, {iconLayout: 'default#image',});
+							  myPlacemark = new ymaps.Placemark([coord[0], coord[1]], { balloonContent: '<a href="?module=Contacts&view=Detail&record='+info[0]+'" target="_blank">'+info[1]+'</a><br>'+info[3]+'<br><a href="javascript:selectContact(\''+info[0]+'\',\''+info[1]+'\')">Выбрать</a>'}, {iconLayout: 'default#image',});
 							  myMap.geoObjects.add(myPlacemark);
 				   
 						}

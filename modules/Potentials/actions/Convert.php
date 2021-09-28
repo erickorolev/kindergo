@@ -129,7 +129,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 			}
 		}
 		
-		$relatedlistproj = $adb->pquery("SELECT crmid,firstname,lastname,attendant_coordinates FROM  vtiger_crmentity,vtiger_contactdetails,vtiger_contactscf WHERE vtiger_contactdetails.contactid=vtiger_crmentity.crmid AND vtiger_crmentity.deleted!='1' AND vtiger_contactdetails.contactid=vtiger_contactscf.contactid AND vtiger_contactdetails.attendant_coordinates!=''  AND vtiger_contactdetails.type='Attendant' AND vtiger_contactdetails.attendant_status='Active' LIMIt 300");
+		$relatedlistproj = $adb->pquery("SELECT crmid,firstname,lastname,attendant_coordinates,attendant_schedule FROM  vtiger_crmentity,vtiger_contactdetails,vtiger_contactscf WHERE vtiger_contactdetails.contactid=vtiger_crmentity.crmid AND vtiger_crmentity.deleted!='1' AND vtiger_contactdetails.contactid=vtiger_contactscf.contactid AND vtiger_contactdetails.attendant_coordinates!=''  AND vtiger_contactdetails.type='Attendant' AND vtiger_contactdetails.attendant_status='Active' LIMIt 300");
 		$res_cnt = $adb->num_rows($relatedlistproj);		
 		if($res_cnt > 0) {
 			for($i=0;$i<$res_cnt;$i++) 
@@ -137,8 +137,9 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 				$crmid = $adb->query_result($relatedlistproj,$i,"crmid");
 				$firstname = $adb->query_result($relatedlistproj,$i,"firstname");	
 				$lastname = $adb->query_result($relatedlistproj,$i,"lastname");	
-				$coordinat = $adb->query_result($relatedlistproj,$i,"attendant_coordinates");	
-				$line.=$crmid."##".$firstname." ".$lastname."##".$coordinat."::";
+				$coordinat = $adb->query_result($relatedlistproj,$i,"attendant_coordinates");
+				$attendant_schedule = $adb->query_result($relatedlistproj,$i,"attendant_schedule");					
+				$line.=$crmid."##".$firstname." ".$lastname."##".$coordinat."##".str_replace("::","",$attendant_schedule)."::";
 			}
 		}
 		print $name."||".$line;
@@ -428,7 +429,7 @@ class Potentials_Convert_Action extends Vtiger_Action_Controller
 						$recordModel->set("cf_1224", $potentialid);	
 						$recordModel->set("attendant_income", 0);
 						//$recordModel->set("trips_contact", $request->get("contact_id"));
-						$recordModel->set("trips_status", "Pending"); 
+						$recordModel->set("trips_status", "В ожидании"); 
 						
 						$recordModel->save();  
 						$tripid=$recordModel->getId();
